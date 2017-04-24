@@ -1,0 +1,197 @@
+﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GAPPOnline</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/blueimp-file-upload/css/jquery.fileupload-ui.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+    <environment names="Development">
+        <link rel="stylesheet" href="~/css/GAPPOnline.css" />
+    </environment>
+    <environment names="Staging,Production">
+        <link rel="stylesheet" href="~/css/GAPPOnline.min.css" asp-append-version="true" />
+    </environment>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/lib/angular/angular.min.js"></script>
+    <script src="~/lib/moment/min/moment-with-locales.min.js"></script>
+    <script src="~/lib/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="~/lib/jquery-ui/jquery-ui.min.js"></script>
+    <script src="~/lib/lodash/dist/lodash.min.js"></script>
+    <script src="~/lib/blueimp-file-upload/js/jquery.fileupload.js"></script>
+    <script src="~/lib/blueimp-file-upload/js/jquery.fileupload-ui.js"></script>
+    <environment names="Development">
+        <script src="~/js/bindWithDelay.js"></script>
+        <script src="~/js/BusyWaitDialog.js"></script>
+        <script src="~/js/pagedList.js"></script>
+        <script src="~/js/GAPPOnline.js"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/js/GAPPOnline.min.js" asp-append-version="true"></script>
+    </environment>
+    <script type="text/javascript">
+        pagedList.addDefaultButton("Select", '@Html.T("Select")', "btn btn-primary btn-xs").showIf(function (item) { return item.CanSelect; });
+        pagedList.addDefaultButton("Edit", '@Html.T("Edit")', "btn btn-primary btn-xs").showIf(function (item) { return item.CanEdit; });
+        pagedList.addDefaultButton("Clone", '@Html.T("Clone")', "btn btn-default btn-xs").showIf(function (item) { return item.CanClone; });
+        pagedList.addDefaultButton("Delete", '@Html.T("Delete")', "btn btn-danger btn-xs").showIf(function (item) { return item.CanDelete; });
+        pagedList.DefaultText.TextTotal = '@Html.T("Total")';
+        pagedList.DefaultText.TextFilter = '@Html.T("Filter")';
+    </script>
+
+    @Html.Raw(JavaScriptSnippet.FullScript)
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">GAPPOnline</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="@Url.MakeActiveClass("Home")"><a asp-area="" asp-controller="Home" asp-action="Index">@Html.T("Dashboard")</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="@Url.MakeActiveClass("Account")"><a asp-area="" asp-controller="Account" asp-action="SignOut">@Html.T("Sign out")</a></li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="@Url.MakeActiveClass("Account")"><a asp-area="" asp-controller="Account" asp-action="SignIn">@Html.T("Sign in")</a></li>
+                        </ul>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container body-content">
+        <div id="systemMessages" class="system-messages">
+            @{
+                var gmsgs = GAPPOnline.Services.NotificationService.Instance.GetMessages(this.Context);
+                if (gmsgs != null)
+                {
+                    foreach (var msg in gmsgs.ErrorMessages)
+                    {
+                        <div class="alert alert-danger alert-dismissible systemMessage" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            @msg
+                        </div>
+                    }
+                    foreach (var msg in gmsgs.WarningMessages)
+                    {
+                        <div class="alert alert-warning alert-dismissible systemMessage" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            @msg
+                        </div>
+                    }
+                    foreach (var msg in gmsgs.InfoMessages)
+                    {
+                        <div class="alert alert-info alert-dismissible systemMessage" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            @msg
+                        </div>
+                    }
+                    foreach (var msg in gmsgs.SuccessMessages)
+                    {
+                        <div class="alert alert-success alert-dismissible systemMessage" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            @msg
+                        </div>
+                    }
+                }
+            }
+        </div>
+        @Html.Partial("ConfirmDlg")
+        @RenderBody()
+        <hr />
+        <footer class="footer navbar-fixed-bottom">
+            <p>&copy; @DateTime.Now.Year - Globalcaching.eu @string.Format("(v{0})", System.Reflection.Assembly.GetEntryAssembly().GetName().Version)</p>
+        </footer>
+    </div>
+
+    <script>
+        function appendSystemMessage(type, text) {
+            var s = '';
+            s += '<div class="alert alert-' + type + ' alert-dismissible systemMessage" role="alert">';
+            s += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
+            s += htmlEncode(text);
+            s += '</div>';
+
+            $('#systemMessages').append(s);
+            $('.systemMessage').fadeTo(2000, 500, function () {
+                $(this).slideUp("slow", function () {
+                    $(this).remove();
+                });
+            });
+        }
+
+        jQuery(document).ready(function ($) {
+            $.fn.accomodateFooter = function () {
+                var footerHeight = $('footer').outerHeight();
+                $(this).css({ 'padding-bottom': footerHeight + 'px' });
+            }
+            $('footer').on('DOMSubtreeModified', function () {
+                $('body').accomodateFooter();
+            })
+            $(window).on('resize', function () {
+                $('body').accomodateFooter();
+            })
+            $('body').accomodateFooter();
+
+            $('.systemMessage').fadeTo(5000, 500, function () {
+                $(this).slideUp("slow", function () {
+                    $(this).remove();
+                });
+            });
+        });
+
+        $(document).ajaxStart(function () {
+        });
+        $(document).ajaxSend(function (event, jqxhr, settings) {
+        });
+        $(document).ajaxComplete(function (event, xhr, settings) {
+            if (xhr.responseJSON != null) {
+                if (xhr.responseJSON.NotificationMessages != undefined && xhr.responseJSON.NotificationMessages != null) {
+                    for (var i = 0; i < xhr.responseJSON.NotificationMessages.ErrorMessages.length; i++) {
+                        appendSystemMessage("danger", xhr.responseJSON.NotificationMessages.ErrorMessages[i]);
+                    }
+                    for (var i = 0; i < xhr.responseJSON.NotificationMessages.WarningMessages.length; i++) {
+                        appendSystemMessage("warning", xhr.responseJSON.NotificationMessages.WarningMessages[i]);
+                    }
+                    for (var i = 0; i < xhr.responseJSON.NotificationMessages.InfoMessages.length; i++) {
+                        appendSystemMessage("info", xhr.responseJSON.NotificationMessages.InfoMessages[i]);
+                    }
+                    for (var i = 0; i < xhr.responseJSON.NotificationMessages.SuccessMessages.length; i++) {
+                        appendSystemMessage("success", xhr.responseJSON.NotificationMessages.SuccessMessages[i]);
+                    }
+                }
+            }
+        });
+        $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+        });
+        $(document).ajaxSuccess(function (event, xhr, settings) {
+        });
+        $(document).ajaxStop(function () {
+        });
+    </script>
+
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

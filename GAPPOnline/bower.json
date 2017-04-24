@@ -1,0 +1,22 @@
+{
+  "name": "asp.net",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "3.3.7",
+    "jquery": "3.2.1",
+    "jquery-validation": "1.16.0",
+    "jquery-validation-unobtrusive": "3.2.6",
+    "angular": "v1.6.5-build.5353+sha.136a42a",
+    "blueimp-file-upload": "jquery-file-upload#v9.18.0",
+    "jquery-ui": "1.12.1",
+    "modernizr": "v3.5.0",
+    "moment": "2.18.1",
+    "bootstrap-datetimepicker": "v0.0.11",
+    "lodash": "4.17.4"
+  },
+  "resolutions": {
+    "jquery": ">=1.6",
+    "jquery-validation": "1.16.0",
+    "bootstrap": "3.3.7"
+  }
+}
