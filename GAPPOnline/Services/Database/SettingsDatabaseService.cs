@@ -13,7 +13,7 @@ namespace GAPPOnline.Services.Database
         private static SettingsDatabaseService _uniqueInstance = null;
         private static object _lockObject = new object();
 
-        public NPoco.Database SettingsDatabase { get; private set; }
+        private NPoco.Database _settingsDatabase;
 
         private SettingsDatabaseService()
         {
@@ -40,13 +40,13 @@ namespace GAPPOnline.Services.Database
 
         private void InitDatabase()
         {
-            SettingsDatabase = GetDatabase();
-            var jm = SettingsDatabase.ExecuteScalar<string>("PRAGMA journal_mode");
+            _settingsDatabase = GetDatabase();
+            var jm = _settingsDatabase.ExecuteScalar<string>("PRAGMA journal_mode");
             if (string.Compare(jm, "wal", true) != 0)
             {
-                SettingsDatabase.Execute("PRAGMA journal_mode = WAL");
+                _settingsDatabase.Execute("PRAGMA journal_mode = WAL");
             }
-            ExecuteWithinTransaction(SettingsDatabase, (db) =>
+            ExecuteWithinTransaction(_settingsDatabase, (db) =>
             {
                 db.Execute(@"create table if not exists User(
 Id integer PRIMARY KEY,
@@ -70,12 +70,13 @@ TokenFromDate datetime
 Id integer PRIMARY KEY,
 UserId integer,
 Name text,
+Description text,
 CreatedAt datetime
 )");
             });
-        }   
+        }
 
-        public override NPoco.Database GetDatabase()
+        protected override NPoco.Database GetDatabase()
         {
             var fn = Path.Combine(Startup.HostingEnvironment.ContentRootPath, "App_Data");
             if (!Directory.Exists(fn))
@@ -88,6 +89,27 @@ CreatedAt datetime
             //con.CreateCollation("nocase", new Comparison<string>((a, b) => { return string.Compare(a, b, true); }));
             return new GAPPOnlineDatabase(this, con);
         }
+
+        public override void Execute(Action<NPoco.Database> action)
+        {
+            Execute(_settingsDatabase, action);
+        }
+
+        public override T GetPage<T, T2>(int page, int pageSize, string sortOn, bool sortAsc, string defaultSort, NPoco.Sql sql)
+        {
+            T result;
+            result = GetPage<T, T2>(_settingsDatabase, page, pageSize, sortOn, sortAsc, defaultSort, sql);
+            return result;
+        }
+
+        public override bool ExecuteWithinTransaction(Action<NPoco.Database> action)
+        {
+            bool result = false;
+            result = ExecuteWithinTransaction(_settingsDatabase, action);
+            return result;
+        }
+
+
     }
 
 }

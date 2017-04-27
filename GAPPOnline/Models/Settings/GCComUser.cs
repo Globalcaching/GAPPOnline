@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 namespace GAPPOnline.Models.Settings
 {
     [NPoco.TableName("GCComAccount")]
-    public class GCComUser: AutoIdModel
+    [NPoco.PrimaryKey("Id")]
+    public class GCComUser
     {
+        public long Id { get; set; }
         public long UserId { get; set; }
 
         public long MemberId { get; set; }

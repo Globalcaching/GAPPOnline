@@ -10,7 +10,7 @@ namespace GAPPOnline.Services.Database
     {
         private BaseDatabaseService _service;
 
-        public GAPPOnlineDatabase(BaseDatabaseService service, DbConnection connection) : base(connection)
+        public GAPPOnlineDatabase(BaseDatabaseService service, DbConnection connection) : base(connection, NPoco.DatabaseType.SQLite)
         {
             _service = service;
             KeepConnectionAlive = false;

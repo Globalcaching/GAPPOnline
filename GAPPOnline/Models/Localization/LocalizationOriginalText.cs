@@ -5,8 +5,10 @@ using System.Linq;
 namespace GAPPOnline.Models.Localization
 {
     [NPoco.TableName("LocalizationOriginalText")]
-    public class LocalizationOriginalText: AutoIdModel
+    [NPoco.PrimaryKey("Id")]
+    public class LocalizationOriginalText
     {
+        public long Id { get; set; }
         public string OriginalText { get; set; }
     }
 }

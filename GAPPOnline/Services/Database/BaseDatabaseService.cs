@@ -26,38 +26,27 @@ namespace GAPPOnline.Services.Database
             RecordChanged?.Invoke(db, record, action);
         }
 
-        public virtual NPoco.Database GetDatabase()
+        protected virtual NPoco.Database GetDatabase()
         {
             return null;
         }
 
-        public T Save<T>(NPoco.Database db, T item) where T: AutoIdModel
+        public virtual void Execute(Action<NPoco.Database> action)
         {
-            var pd = db.PocoDataFactory.ForType(typeof(T));
-            if (item.Id == 0)
+            using (var db = GetDatabase())
             {
-                long newId;
-                lock (_cachedIds)
-                {
-                    if (!_cachedIds.TryGetValue(typeof(T), out newId))
-                    {
-                        var curId = db.ExecuteScalar<long?>($"select max(Id) from {pd.TableInfo.TableName}");
-                        newId = curId ?? 0;
-                    }
-                    newId++;
-                    _cachedIds[typeof(T)] = newId;
-                }
-                item.Id = newId;
-                db.Insert(pd.TableInfo.TableName, null, false, item);
+                Execute(db, action);
             }
-            else
-            {
-                db.Update(pd.TableInfo.TableName, "Id", item);
-            }
-            return item;
         }
 
-        public bool ExecuteWithinTransaction(Action<NPoco.Database> action)
+
+        public void Execute(NPoco.Database db, Action<NPoco.Database> action)
+        {
+            action(db);
+        }
+
+
+        public virtual bool ExecuteWithinTransaction(Action<NPoco.Database> action)
         {
             bool result = false;
             using (var db = GetDatabase())
@@ -67,7 +56,7 @@ namespace GAPPOnline.Services.Database
             return result;
         }
 
-        public bool ExecuteWithinTransaction(NPoco.Database db, Action<NPoco.Database> action)
+        protected bool ExecuteWithinTransaction(NPoco.Database db, Action<NPoco.Database> action)
         {
             bool result = false;
             db.BeginTransaction(System.Data.IsolationLevel.Serializable);
@@ -90,52 +79,38 @@ namespace GAPPOnline.Services.Database
             return result;
         }
 
-        public T GetPage<T, T2>(int page, int pageSize, string sortOn, bool sortAsc, string defaultSort, NPoco.Sql sql)
+        public virtual T GetPage<T, T2>(int page, int pageSize, string sortOn, bool sortAsc, string defaultSort, NPoco.Sql sql)
             where T : new()
         {
-            var result = new T();
+            T result;
             using (var db = GetDatabase())
             {
-                if (!string.IsNullOrWhiteSpace(sortOn))
-                {
-                    var sort = sortAsc ? "Asc" : "Desc";
-                    sql = sql.OrderBy($"{sortOn} {sort}");
-                }
-                else if (!string.IsNullOrWhiteSpace(defaultSort))
-                {
-                    sql = sql.OrderBy($"{defaultSort} asc");
-                }
-                var items = db.Page<T2>(page, pageSize, sql);
-                typeof(T).GetProperty("Items").SetValue(result, items.Items, null);
-                typeof(T).GetProperty("CurrentPage").SetValue(result, items.CurrentPage, null);
-                typeof(T).GetProperty("PageCount").SetValue(result, items.TotalPages, null);
-                typeof(T).GetProperty("TotalCount").SetValue(result, items.TotalItems, null);
+                result = GetPage<T, T2>(db, page, pageSize, sortOn, sortAsc, defaultSort, sql);
             }
             return result;
         }
 
-        public PagedListViewModel GetPage(int page, int pageSize, string sortOn, bool sortAsc, string defaultSort, NPoco.Sql sql)
+        protected T GetPage<T, T2>(NPoco.Database db, int page, int pageSize, string sortOn, bool sortAsc, string defaultSort, NPoco.Sql sql)
+            where T : new()
         {
-            var result = new PagedListViewModel();
-            using (var db = GetDatabase())
+            var result = new T();
+            if (!string.IsNullOrWhiteSpace(sortOn))
             {
-                if (!string.IsNullOrWhiteSpace(sortOn))
-                {
-                    var sort = sortAsc ? "Asc" : "Desc";
-                    sql = sql.OrderBy($"{sortOn} {sort}");
-                }
-                else if (!string.IsNullOrWhiteSpace(defaultSort))
-                {
-                    sql = sql.OrderBy($"{defaultSort} asc");
-                }
-                var dbResult = db.Page<dynamic>(page, pageSize, sql);
-                result.Items = dbResult.Items;
-                result.CurrentPage = dbResult.CurrentPage;
-                result.PageCount = dbResult.TotalPages;
-                result.TotalCount = dbResult.TotalItems;
+                var sort = sortAsc ? "Asc" : "Desc";
+                sql = sql.OrderBy($"{sortOn} {sort}");
             }
+            else if (!string.IsNullOrWhiteSpace(defaultSort))
+            {
+                sql = sql.OrderBy($"{defaultSort} asc");
+            }
+            var items = db.Page<T2>(page, pageSize, sql);
+            typeof(T).GetProperty("Items").SetValue(result, items.Items, null);
+            typeof(T).GetProperty("CurrentPage").SetValue(result, items.CurrentPage, null);
+            typeof(T).GetProperty("PageCount").SetValue(result, items.TotalPages, null);
+            typeof(T).GetProperty("TotalCount").SetValue(result, items.TotalItems, null);
             return result;
         }
+
 
         public class PragmaTableInfo
         {

@@ -16,11 +16,8 @@ namespace GAPPOnline.Services
         private static AccountService _uniqueInstance = null;
         private static object _lockObject = new object();
 
-        private NPoco.Database _settingsDatabase;
-
         private AccountService()
         {
-            _settingsDatabase = SettingsDatabaseService.Instance.SettingsDatabase;
         }
 
         public static AccountService Instance
@@ -44,17 +41,20 @@ namespace GAPPOnline.Services
         public Models.Settings.User GetUser(string name)
         {
             Models.Settings.User result = null;
-            result = _settingsDatabase.FirstOrDefault<Models.Settings.User>("where Name = @0 COLLATE NOCASE", name);
-            if (result == null && name.ToLower() == "admin")
+            SettingsDatabaseService.Instance.Execute((db) =>
             {
-                result = new Models.Settings.User();
-                result.Name = "admin";
-                result.Password = StringToHash("admin");
-                result.IsAdmin = true;
-                result.MemberTypeId = 1;
-                result.PreferredLanguage = "en-US";
-                SettingsDatabaseService.Instance.Save(_settingsDatabase, result);
-            }
+                result = db.FirstOrDefault<Models.Settings.User>("where Name = @0 COLLATE NOCASE", name);
+                if (result == null && name.ToLower() == "admin")
+                {
+                    result = new Models.Settings.User();
+                    result.Name = "admin";
+                    result.Password = StringToHash("admin");
+                    result.IsAdmin = true;
+                    result.MemberTypeId = 1;
+                    result.PreferredLanguage = "en-US";
+                    db.Save(result);
+                }
+            });
             return result;
         }
 

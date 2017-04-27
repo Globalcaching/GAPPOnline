@@ -36,11 +36,8 @@ namespace GAPPOnline.Services
 
         private TranslationCache _cache = null;
 
-        private LocalizationDatabaseService _databaseService;
-
         private LocalizationService()
         {
-            _databaseService = LocalizationDatabaseService.Instance;
             _cache = new TranslationCache();
             InitializeCache();
         }
@@ -68,7 +65,7 @@ namespace GAPPOnline.Services
             lock (_cache)
             {
                 _cache.Clear();
-                using (var db = _databaseService.GetDatabase())
+                LocalizationDatabaseService.Instance.Execute((db) =>
                 {
                     var lc = db.FirstOrDefault<LocalizationCulture>("where Name = 'en-US' COLLATE NOCASE");
                     if (lc == null)
@@ -76,7 +73,7 @@ namespace GAPPOnline.Services
                         lc = new LocalizationCulture();
                         lc.Name = "en-US";
                         lc.Description = "en-US";
-                        _databaseService.Save(db, lc);
+                        db.Save(lc);
 
                     }
                     _cache.LocalizationOriginalText = db.Fetch<LocalizationOriginalText>().ToDictionary(i => i.OriginalText, i => i.Id);
@@ -85,7 +82,7 @@ namespace GAPPOnline.Services
                     {
                         _cache.LocalizationTranslations.Add(c.Id, db.Fetch<LocalizationTranslation>("where LocalizationCultureId = @0", c.Id).ToDictionary(i => i.LocalizationOriginalTextId, i => i.TranslatedText));
                     }
-                }
+                });
             }
         }
 
@@ -142,10 +139,10 @@ namespace GAPPOnline.Services
             LocalizationCulture result = null;
             lock (this)
             {
-                using (var db = _databaseService.GetDatabase())
+                LocalizationDatabaseService.Instance.Execute((db) =>
                 {
                     result = db.FirstOrDefault<LocalizationCulture>("where Name = @0 COLLATE NOCASE", culture);
-                }
+                });
             }
             return result;
         }
@@ -169,13 +166,13 @@ namespace GAPPOnline.Services
                         }
                         else
                         {
-                            using (var db = _databaseService.GetDatabase())
+                            LocalizationDatabaseService.Instance.Execute((db) =>
                             {
                                 var m = new LocalizationOriginalText();
                                 m.OriginalText = text;
-                                _databaseService.Save(db, m);
+                                db.Save(m);
                                 _cache.LocalizationOriginalText.Add(text, m.Id);
-                            }
+                            });
                         }
 
                         result = string.IsNullOrEmpty(translatedText) ? text : translatedText;
@@ -195,9 +192,9 @@ namespace GAPPOnline.Services
 
         public void SaveLocalizationCulture(LocalizationCulture m)
         {
-            _databaseService.ExecuteWithinTransaction((db) =>
+            LocalizationDatabaseService.Instance.ExecuteWithinTransaction((db) =>
             {
-                _databaseService.Save(db, m);
+                db.Save(m);
                 lock (_cache)
                 {
                     Dictionary<long, string> table;
@@ -211,7 +208,7 @@ namespace GAPPOnline.Services
 
         public void DeleteLocalizationCulture(LocalizationCulture m)
         {
-            _databaseService.ExecuteWithinTransaction((db) =>
+            LocalizationDatabaseService.Instance.ExecuteWithinTransaction((db) =>
             {
                 lock (_cache)
                 {
@@ -228,12 +225,12 @@ namespace GAPPOnline.Services
 
         public void SaveLocalizationTranslation(LocalizationTranslationViewModelItem item)
         {
-            using (var db = _databaseService.GetDatabase())
+            LocalizationDatabaseService.Instance.Execute((db) =>
             {
                 lock (_cache)
                 {
                     Dictionary<long, string> table;
-                    if (_cache.LocalizationTranslations.TryGetValue(item.CultureId, out table) && db.FirstOrDefault<LocalizationOriginalText>("where Id=@0", item.OriginalTextId) !=null)
+                    if (_cache.LocalizationTranslations.TryGetValue(item.CultureId, out table) && db.FirstOrDefault<LocalizationOriginalText>("where Id=@0", item.OriginalTextId) != null)
                     {
                         var m = db.FirstOrDefault<LocalizationTranslation>("where LocalizationCultureId=@0 and LocalizationOriginalTextId=@1", item.CultureId, item.OriginalTextId);
                         if (m == null)
@@ -244,10 +241,10 @@ namespace GAPPOnline.Services
                         }
                         table[item.OriginalTextId] = item.TranslatedText;
                         m.TranslatedText = item.TranslatedText;
-                        _databaseService.Save(db, m);
+                        db.Save(m);
                     }
                 }
-            }
+            });
         }
 
         public LocalizationTranslationViewModel GetLocalizationTranslations(int page, int pageSize, long cultureId, string filterOrg = "", string filterTrans = "", string sortOn = "", bool sortAsc = true)
@@ -278,7 +275,7 @@ namespace GAPPOnline.Services
             {
                 sortOn = string.Format("CAST({0} as NVarchar(1000))", sortOn);
             }
-            var result = _databaseService.GetPage<LocalizationTranslationViewModel, LocalizationTranslationViewModelItem>(page, pageSize, sortOn, sortAsc, "CAST(OriginalText as NVarchar(1000))", sql);
+            var result = LocalizationDatabaseService.Instance.GetPage<LocalizationTranslationViewModel, LocalizationTranslationViewModelItem>(page, pageSize, sortOn, sortAsc, "CAST(OriginalText as NVarchar(1000))", sql);
             return result;
         }
 
@@ -290,7 +287,7 @@ namespace GAPPOnline.Services
                 .Append(", CanClone = 0")
                 .Append(", CanSelect = 1")
                 .From("LocalizationCulture");
-            return _databaseService.GetPage<LocalizationCultureViewModel, LocalizationCultureViewModelItem>(page, pageSize, sortOn, sortAsc, "Name", sql);
+            return LocalizationDatabaseService.Instance.GetPage<LocalizationCultureViewModel, LocalizationCultureViewModelItem>(page, pageSize, sortOn, sortAsc, "Name", sql);
         }
 
     }

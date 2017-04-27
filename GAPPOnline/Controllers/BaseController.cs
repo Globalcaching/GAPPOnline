@@ -10,16 +10,18 @@ namespace GAPPOnline.Controllers
 {
     public class BaseController : Controller
     {
+        protected Models.Settings.User CurrentUser { get; set; }
+
         public BaseController()
         {
             var userName = System.Web.HttpContext.Current.User.Identity.Name;
             if (!string.IsNullOrEmpty(userName))
             {
-                var user = AccountService.Instance.GetUser(userName);
-                if (user != null)
+                CurrentUser = AccountService.Instance.GetUser(userName);
+                if (CurrentUser != null)
                 {
-                    LocalizationService.Instance.CurrentCulture = LocalizationService.Instance.GetLocalizationCulture(user.PreferredLanguage);
-                    LocalizationService.Instance.CurrentCultureInfo = new System.Globalization.CultureInfo(user.PreferredLanguage);
+                    LocalizationService.Instance.CurrentCulture = LocalizationService.Instance.GetLocalizationCulture(CurrentUser.PreferredLanguage);
+                    LocalizationService.Instance.CurrentCultureInfo = new System.Globalization.CultureInfo(CurrentUser.PreferredLanguage);
                 }
             }
             LocalizationService.Instance.Initialize();

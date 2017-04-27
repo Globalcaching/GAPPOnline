@@ -16,6 +16,8 @@
         <link rel="stylesheet" href="~/css/GAPPOnline.min.css" asp-append-version="true" />
     </environment>
 
+    @Html.Raw(JavaScriptSnippet.FullScript)
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="~/lib/angular/angular.min.js"></script>
@@ -43,7 +45,6 @@
         pagedList.DefaultText.TextFilter = '@Html.T("Filter")';
     </script>
 
-    @Html.Raw(JavaScriptSnippet.FullScript)
 </head>
 <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">

@@ -13,6 +13,8 @@ namespace GAPPOnline.Services.Database
         private static LocalizationDatabaseService _uniqueInstance = null;
         private static object _lockObject = new object();
 
+        private NPoco.Database _localizationDatabase;
+
         private LocalizationDatabaseService()
         {
             InitDatabase();
@@ -38,19 +40,25 @@ namespace GAPPOnline.Services.Database
 
         private void InitDatabase()
         {
-            ExecuteWithinTransaction((db) =>
+            _localizationDatabase = GetDatabase();
+            var jm = _localizationDatabase.ExecuteScalar<string>("PRAGMA journal_mode");
+            if (string.Compare(jm, "wal", true) != 0)
+            {
+                _localizationDatabase.Execute("PRAGMA journal_mode = WAL");
+            }
+            ExecuteWithinTransaction(_localizationDatabase, (db) =>
             {
                 db.Execute(@"create table if not exists LocalizationCulture(
-Id integer,
+Id integer PRIMARY KEY,
 Name text,
 Description text
 )");
                 db.Execute(@"create table if not exists LocalizationOriginalText(
-Id integer,
+Id integer PRIMARY KEY,
 OriginalText text
 )");
                 db.Execute(@"create table if not exists LocalizationTranslation(
-Id integer,
+Id integer PRIMARY KEY,
 LocalizationCultureId integer,
 LocalizationOriginalTextId integer,
 TranslatedText text
@@ -59,7 +67,7 @@ TranslatedText text
         }
 
 
-        public override NPoco.Database GetDatabase()
+        protected override NPoco.Database GetDatabase()
         {
             var fn = Path.Combine(Startup.HostingEnvironment.ContentRootPath, "App_Data");
             if (!Directory.Exists(fn))
@@ -70,6 +78,25 @@ TranslatedText text
             var con = new SqliteConnection(string.Format("data source={0}", fn));
             con.Open();
             return new GAPPOnlineDatabase(this, con);
+        }
+
+        public override void Execute(Action<NPoco.Database> action)
+        {
+            Execute(_localizationDatabase, action);
+        }
+
+        public override T GetPage<T, T2>(int page, int pageSize, string sortOn, bool sortAsc, string defaultSort, NPoco.Sql sql)
+        {
+            T result;
+            result = GetPage<T, T2>(_localizationDatabase, page, pageSize, sortOn, sortAsc, defaultSort, sql);
+            return result;
+        }
+
+        public override bool ExecuteWithinTransaction(Action<NPoco.Database> action)
+        {
+            bool result = false;
+            result = ExecuteWithinTransaction(_localizationDatabase, action);
+            return result;
         }
     }
 
