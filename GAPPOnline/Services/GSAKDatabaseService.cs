@@ -4,6 +4,7 @@ using GAPPOnline.ViewModels;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Authentication;
+using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace GAPPOnline.Services
 {
-    public class GSAKDatabaseService: BaseService
+    public class GSAKDatabaseService: BaseDatabaseService
     {
         private static GSAKDatabaseService _uniqueInstance = null;
         private static object _lockObject = new object();
@@ -149,5 +150,41 @@ namespace GAPPOnline.Services
             }
             return result;
         }
+
+        private string GetGSAKDatabaseFile(Models.Settings.User user)
+        {
+            return GetGSAKDatabaseFile(user.Id, (long)user.SessionInfo.SelectedGSAKDatabaseId);
+        }
+
+        public GSAKGeocacheViewModel GetGSAKGeocaches(Models.Settings.User user, int page, int pageSize
+            , string filterCode = ""
+            , string filterName = ""
+            , string sortOn = "", bool sortAsc = true)
+        {
+            var sql = NPoco.Sql.Builder.Select("Caches.*")
+                .Append(", 1 as CanDelete")
+                .Append(", 1 as CanEdit")
+                .Append(", 0 as CanClone");
+            if (user.SessionInfo?.ActiveGCCode == null)
+            {
+                sql = sql.Append(", 1 as CanSelect");
+            }
+            else
+            {
+                sql = sql.Append($", (Caches.Code <> {user.SessionInfo.ActiveGCCode}) as CanSelect");
+            }
+            sql = sql.From("Caches")
+            .Where("1=1");
+            if (!string.IsNullOrEmpty(filterCode))
+            {
+                sql = sql.Append("and Caches.Code like @0", $"%{filterCode}%");
+            }
+            if (!string.IsNullOrEmpty(filterName))
+            {
+                sql = sql.Append("and Caches.Name like @0", $"%{filterName}%");
+            }
+            return GSAKDatabaseInstance.GetPage<GSAKGeocacheViewModel, GSAKGeocacheViewModelItem>(GetGSAKDatabaseFile(user), page, pageSize, sortOn, sortAsc, "Code", sql);
+        }
+
     }
 }

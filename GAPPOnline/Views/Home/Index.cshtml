@@ -24,6 +24,16 @@
                 <h3 class="panel-title">@Html.T("Views")</h3>
             </div>
             <div class="panel-body">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <a href="@Url.Action("Index", "Home")">@Html.T("Dashboard")</a>
+                        <a href="@Url.Action("Index", "Home")" target="dashboard"><i class="glyphicon glyphicon-new-window" style="vertical-align:middle"></i></a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="@Url.Action("Index", "GSAKCacheList")">@Html.T("Geocache list")</a>
+                        <a href="@Url.Action("Index", "GSAKCacheList")" target="cachelist"><i class="glyphicon glyphicon-new-window" style="vertical-align:middle"></i></a>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>

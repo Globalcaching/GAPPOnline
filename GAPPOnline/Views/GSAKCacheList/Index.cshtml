@@ -1,0 +1,34 @@
+﻿@{
+    ViewData["Title"] = "Geocache list";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div id="gsakGeocacheList"></div>
+
+<script>
+
+    function sessionInfoUpdated(sessionInfo) {
+        if (sessionInfo.SelectedGSAKDatabaseId != null) {
+            gsakGeocacheList.refresh();
+        }
+    }
+    function dataChanged(data) {
+        if (data == 'GSAKDatabase') {
+            //gsakGeocacheList.refresh();
+        }
+    }
+
+    gsakGeocacheList = new pagedList.PagedList("#gsakGeocacheList", "@Url.Action("GetGeocaches", "GSAKCacheList", new { area = "GAPPOnline" })");
+    gsakGeocacheList.pageSize = 50;
+    gsakGeocacheList.addColumn("@Html.T("Code")")
+        .enableFilter()
+        .enableSort()
+        .itemToHtml(function (item) { return htmlEncode(item.Code); });
+    gsakGeocacheList.addColumn("@Html.T("Name")")
+        .enableFilter()
+        .enableSort()
+        .itemToHtml(function (item) { return htmlEncode(item.Name); });
+
+
+</script>

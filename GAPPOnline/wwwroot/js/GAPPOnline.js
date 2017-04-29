@@ -13,7 +13,7 @@ function createFilterItemsFromList(list, textForAll) {
 }
 
 function htmlEncode(value) {
-    return $('<div/>').text(value).html();
+    return $('<div/>').text(value).html().replace(/\n/g, "<br />");
 }
 
 function ajax(type, url, data, onSuccess, onError) {

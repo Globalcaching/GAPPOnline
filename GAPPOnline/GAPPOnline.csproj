@@ -33,6 +33,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Models\Localization\" />
+    <Folder Include="Models\GSAK\" />
   </ItemGroup>
 
 </Project>

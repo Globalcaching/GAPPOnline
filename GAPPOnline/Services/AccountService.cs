@@ -136,11 +136,16 @@ namespace GAPPOnline.Services
                            where c.Type == ClaimTypes.Expiration
                            select c.Value).FirstOrDefault();
 
-            //for now: if expired, logout
-            if (string.IsNullOrEmpty(expTime) || DateTime.UtcNow > DateTime.Parse(expTime, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal).ToUniversalTime())
+            if (string.IsNullOrEmpty(expTime))
             {
                 context.RejectPrincipal();
                 await context.HttpContext.Authentication.SignOutAsync("Cookie");
+            }
+            else if (DateTime.UtcNow > DateTime.Parse(expTime, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal).ToUniversalTime())
+            {
+                //todo: check
+                //context.RejectPrincipal();
+                //await context.HttpContext.Authentication.SignOutAsync("Cookie");
             }
         }
 

@@ -7,10 +7,8 @@ using System.Reflection;
 
 namespace GAPPOnline.Services.Database
 {
-    public class BaseDatabaseService : BaseService
+    public class BaseDatabaseService : BaseService, IDisposable
     {
-        private static Dictionary<Type, long> _cachedIds = new Dictionary<Type, long>();
-
         public enum RecordChange
         {
             Added,
@@ -149,6 +147,10 @@ namespace GAPPOnline.Services.Database
             {
             }
             return result;
+        }
+
+        public virtual void Dispose()
+        {
         }
 
         //protected static void BindFunction(SqliteConnection connection, SqliteFunction function)
