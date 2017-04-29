@@ -25,10 +25,33 @@
         .enableFilter()
         .enableSort()
         .itemToHtml(function (item) { return htmlEncode(item.Code); });
+    gsakGeocacheList.addColumn('<img src="/images/cachetypes/2.gif" width="24" height="24" />')
+        .itemToHtml(function (item) { return '<img src="/images/cachetypes/' + item.GCComCacheType + '.gif" width="24" height="24" />'; });
+    gsakGeocacheList.addColumn('<i class="glyphicon glyphicon-tag" style="vertical-align:middle"></i>')
+        .itemToHtml(function (item) { return (item.HasTravelBug == 1) ? '<i class="glyphicon glyphicon-tag" style="vertical-align:middle"></i>' : ''; });
+    gsakGeocacheList.addColumn('<i class="glyphicon glyphicon-flag" style="vertical-align:middle"></i>')
+        .itemToHtml(function (item) { return (item.UserFlag == 1) ? '<i class="glyphicon glyphicon-flag" style="vertical-align:middle"></i>' : ''; });
     gsakGeocacheList.addColumn("@Html.T("Name")")
         .enableFilter()
         .enableSort()
         .itemToHtml(function (item) { return htmlEncode(item.Name); });
-
+    gsakGeocacheList.addColumn("@Html.T("Kms")")
+        .enableSort()
+        .itemToHtml(function (item) { return 'todo'; });
+    gsakGeocacheList.addColumn("@Html.T("Owner")")
+        .enableSort()
+        .itemToHtml(function (item) { return htmlEncode(item.OwnerName); });
+    gsakGeocacheList.addColumn("@Html.T("Placed")")
+        .enableSort()
+        .itemToHtml(function (item) { return htmlEncode(item.PlacedDate); });
+    gsakGeocacheList.addColumn("@Html.T("Container")")
+        .enableSort()
+        .itemToHtml(function (item) { return '<img src="/images/container/' + item.GCComContainer + '.gif" />'; });
+    gsakGeocacheList.addColumn("@Html.T("D")")
+        .enableSort()
+        .itemToHtml(function (item) { return item.Difficulty.toFixed(1); });
+    gsakGeocacheList.addColumn("@Html.T("T")")
+        .enableSort()
+        .itemToHtml(function (item) { return item.Terrain.toFixed(1); });
 
 </script>

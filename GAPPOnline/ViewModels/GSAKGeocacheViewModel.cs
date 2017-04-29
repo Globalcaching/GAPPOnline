@@ -4,6 +4,11 @@ namespace GAPPOnline.ViewModels
 {
     public class GSAKGeocacheViewModelItem : Models.GSAK.GSAKCaches
     {
+        [NPoco.Ignore]
+        public int GCComCacheType { get; set; }
+        [NPoco.Ignore]
+        public int GCComContainer { get; set; }
+
         public bool CanDelete { get; set; }
         public bool CanEdit { get; set; }
         public bool CanClone { get; set; }

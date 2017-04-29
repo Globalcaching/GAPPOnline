@@ -80,8 +80,12 @@ namespace GAPPOnline.Services
             SettingsDatabaseService.Instance.Execute((db) =>
             {
                 var gsakDb = db.FirstOrDefault<Models.Settings.GSAKDatabase>("where Id=@0 and UserId=@1", item.Id, user.Id);
-                user.SessionInfo.SelectedGSAKDatabaseId = gsakDb?.Id;
-                db.Save(user.SessionInfo);
+                if (user.SessionInfo.SelectedGSAKDatabaseId != gsakDb?.Id)
+                {
+                    user.SessionInfo.SelectedGSAKDatabaseId = gsakDb?.Id;
+                    user.SessionInfo.ActiveGCCode = null;
+                    db.Save(user.SessionInfo);
+                }
             });
             DataChangedHub.SendSessionInfoToClient(user);
         }
@@ -183,7 +187,60 @@ namespace GAPPOnline.Services
             {
                 sql = sql.Append("and Caches.Name like @0", $"%{filterName}%");
             }
-            return GSAKDatabaseInstance.GetPage<GSAKGeocacheViewModel, GSAKGeocacheViewModelItem>(GetGSAKDatabaseFile(user), page, pageSize, sortOn, sortAsc, "Code", sql);
+            var result = GSAKDatabaseInstance.GetPage<GSAKGeocacheViewModel, GSAKGeocacheViewModelItem>(GetGSAKDatabaseFile(user), page, pageSize, sortOn, sortAsc, "Code", sql);
+            foreach (var item in result.Items)
+            {
+                if (!string.IsNullOrEmpty(item.CacheType))
+                {
+                    item.GCComCacheType = GetCacheType(item.CacheType[0]);
+                }
+                if (!string.IsNullOrEmpty(item.Container))
+                {
+                    item.GCComContainer = GetContainer(item.Container[0]);
+                }
+            }
+            return result;
+        }
+
+
+        private int GetCacheType(char type)
+        {
+            switch (type)
+            {
+                case 'T': return 2;
+                case 'M': return 3;
+                case 'V': return 4;
+                case 'B': return 5;
+                case 'E': return 6;
+                case 'U': return 8;
+                case 'A': return 9;
+                case 'W': return 11;
+                case 'L': return 12;
+                case 'C': return 13;
+                case 'R': return 137;
+                case 'Z': return 453;
+                case 'X': return 1304;
+                case 'I': return 1858;
+                case 'F': return 3653;
+                case 'H': return 3773;
+                case 'D': return 3774;
+                default: return 0;
+            }
+        }
+
+        private int GetContainer(char container)
+        {
+            switch (container)
+            {
+                case 'N': return 1;
+                case 'M': return 2;
+                case 'R': return 3;
+                case 'L': return 4;
+                case 'V': return 5;
+                case 'O': return 6;
+                case 'S': return 8;
+                default: return 6;
+            }
         }
 
     }
