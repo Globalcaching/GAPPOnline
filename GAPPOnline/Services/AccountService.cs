@@ -38,13 +38,35 @@ namespace GAPPOnline.Services
             }
         }
 
+        public Models.Settings.User GetUserByUserGuid(string userGuid)
+        {
+            Models.Settings.User result = null;
+            SettingsDatabaseService.Instance.Execute((db) =>
+            {
+                result = db.FirstOrDefault<Models.Settings.User>("where UserGuid = @0 COLLATE NOCASE", userGuid);
+                if (result != null)
+                {
+                    result.SessionInfo = db.FirstOrDefault<Models.Settings.UserSessionInfo>("where UserId = @0", result.Id);
+                    if (result.SessionInfo != null)
+                    {
+                        result.SessionInfo.UserGuid = result.UserGuid;
+                    }
+                }
+            });
+            return result;
+        }
+
         public Models.Settings.User GetUser(string name)
         {
             Models.Settings.User result = null;
             SettingsDatabaseService.Instance.Execute((db) =>
             {
                 result = db.FirstOrDefault<Models.Settings.User>("where Name = @0 COLLATE NOCASE", name);
-                if (result == null && name.ToLower() == "admin")
+                if (result!=null)
+                {
+                    result.SessionInfo = db.FirstOrDefault<Models.Settings.UserSessionInfo>("where UserId = @0", result.Id);
+                }
+                else if (result == null && name.ToLower() == "admin")
                 {
                     result = new Models.Settings.User();
                     result.Name = "admin";
@@ -52,7 +74,18 @@ namespace GAPPOnline.Services
                     result.IsAdmin = true;
                     result.MemberTypeId = 1;
                     result.PreferredLanguage = "en-US";
+                    result.UserGuid = Guid.NewGuid().ToString("N");
                     db.Save(result);
+                }
+                if (result != null && result.SessionInfo == null)
+                {
+                    result.SessionInfo = new Models.Settings.UserSessionInfo();
+                    result.SessionInfo.UserId = result.Id;
+                    db.Save(result.SessionInfo);
+                }
+                if (result?.SessionInfo != null)
+                {
+                    result.SessionInfo.UserGuid = result.UserGuid;
                 }
             });
             return result;

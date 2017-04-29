@@ -59,8 +59,8 @@ OriginalText text
 )");
                 db.Execute(@"create table if not exists LocalizationTranslation(
 Id integer PRIMARY KEY,
-LocalizationCultureId integer,
-LocalizationOriginalTextId integer,
+LocalizationCultureId integer not null,
+LocalizationOriginalTextId integer not null,
 TranslatedText text
 )");
             });

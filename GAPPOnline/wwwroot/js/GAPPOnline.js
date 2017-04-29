@@ -156,8 +156,9 @@ function makeRandomId(length) {
 
 // returns date (as string) to use for datetimepicker
 function UtcToLocale(date) { // date as received from server (string, UTC)
-    var localDate = new Date(date); // conversion from UTC to locale
-    return moment(localDate).format('YYYY/MM/DD HH:mm');
+    //var localDate = new Date(date); // conversion from UTC to locale
+    var localDate = moment.utc(date).toDate();
+    return moment(localDate).format('llll');
 }
 
 // returns date (as string) to send to server

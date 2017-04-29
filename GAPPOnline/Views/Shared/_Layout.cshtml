@@ -27,6 +27,8 @@
     <script src="~/lib/lodash/dist/lodash.min.js"></script>
     <script src="~/lib/blueimp-file-upload/js/jquery.fileupload.js"></script>
     <script src="~/lib/blueimp-file-upload/js/jquery.fileupload-ui.js"></script>
+    <script src="~/js/jquery.signalR-2.2.1.min.js"></script>
+    <script src="~/signalr/hubs"></script>
     <environment names="Development">
         <script src="~/js/bindWithDelay.js"></script>
         <script src="~/js/BusyWaitDialog.js"></script>
@@ -48,7 +50,7 @@
 </head>
 <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
+        <div class="container-fluid">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="sr-only">Toggle navigation</span>
@@ -81,7 +83,7 @@
             </div>
         </div>
     </nav>
-    <div class="container body-content">
+    <div class="container-fluid">
         <div id="systemMessages" class="system-messages">
             @{
                 var gmsgs = GAPPOnline.Services.NotificationService.Instance.GetMessages(this.Context);
@@ -159,6 +161,24 @@
                 $(this).slideUp("slow", function () {
                     $(this).remove();
                 });
+            });
+
+            var dataChangedHub = $.connection.dataChangedHub;
+            dataChangedHub.client.sessionInfoUpdated = function (sessionInfo) {
+                if (typeof window.sessionInfoUpdated !== 'undefined') {
+                    window.sessionInfoUpdated(sessionInfo);
+                }
+            };
+            dataChangedHub.client.dataChanged = function (data) {
+                if (typeof window.dataChanged !== 'undefined') {
+                    window.dataChanged(data);
+                }
+            };
+            $.connection.hub.start().done(function () {
+                var g = '@DynamicExtension.GetSavePropertyValue(Model, "UserGuid")';
+                if (g != '') {
+                    dataChangedHub.server.registerUser(g);
+                }
             });
         });
 

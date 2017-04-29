@@ -14,7 +14,7 @@ namespace GAPPOnline.Controllers
         [Authorize]
         public IActionResult Index()
         {
-            return View();
+            return View(GetSessionInfo());
         }
 
         public IActionResult About()
@@ -36,13 +36,16 @@ namespace GAPPOnline.Controllers
             return View();
         }
 
+        [Authorize]
         public ActionResult GetGSAKDatabases(int page, int pageSize, List<string> filterColumns, List<string> filterValues, string sortOn, bool? sortAsc)
         {
             var filterName = ControllerHelper.GetFilterValue(filterColumns, filterValues, "Name");
             var filterDescription = ControllerHelper.GetFilterValue(filterColumns, filterValues, "Description");
+            var filterUserName = ControllerHelper.GetFilterValue(filterColumns, filterValues, "User");
             sortOn = ControllerHelper.GetSortField(new Dictionary<string, string>()
             {
                 { "name", "Name" }
+                , { "user", "UserName" }
                 , { "description", "Description" }
                 , { "created", "CreatedAt" }
             }, sortOn);
@@ -51,7 +54,44 @@ namespace GAPPOnline.Controllers
             {
                 userId = CurrentUser.Id;
             }
-            return Json(GSAKDatabaseService.Instance.GetGSAKDatabases(page, pageSize, userId: userId, filterName: filterName, sortOn: sortOn, sortAsc: sortAsc ?? true));
+            return Json(GSAKDatabaseService.Instance.GetGSAKDatabases(CurrentUser, page, Math.Min(100, pageSize), userId: userId, filterUserName: filterUserName, filterName: filterName, sortOn: sortOn, sortAsc: sortAsc ?? true));
+        }
+
+        [HttpPost]
+        [Authorize]
+        public ActionResult SaveGSAKDatabase(Models.Settings.GSAKDatabase item)
+        {
+            GSAKDatabaseService.Instance.SaveGSAKDatabase(CurrentUser, item);
+            return Json(null);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public ActionResult CheckGSAKDatabaseName(Models.Settings.GSAKDatabase item)
+        {
+            return Json(GSAKDatabaseService.Instance.CheckGSAKDatabaseName(CurrentUser, item));
+        }
+
+        [HttpPost]
+        [Authorize]
+        public ActionResult SelectGSAKDatabase(Models.Settings.GSAKDatabase item)
+        {
+            GSAKDatabaseService.Instance.SelectGSAKDatabase(CurrentUser, item);
+            return Json(null);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public ActionResult DeleteGSAKDatabase(Models.Settings.GSAKDatabase item)
+        {
+            return Json(null);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public ActionResult CloneGSAKDatabase(Models.Settings.GSAKDatabase item)
+        {
+            return Json(null);
         }
 
     }

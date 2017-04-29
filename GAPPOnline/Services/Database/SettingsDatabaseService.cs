@@ -51,16 +51,17 @@ namespace GAPPOnline.Services.Database
                 db.Execute(@"create table if not exists User(
 Id integer PRIMARY KEY,
 Name text,
+UserGuid text,
 Password text,
 PreferredLanguage text,
-MemberTypeId integer,
-IsAdmin bit
+MemberTypeId integer not null,
+IsAdmin bit not null
 )");
                 db.Execute(@"create table if not exists GCComAccount(
 Id integer PRIMARY KEY,
-UserId integer,
+UserId integer not null,
 AvatarUrl text,
-MemberTypeId integer,
+MemberTypeId integer not null,
 PublicGuid text,
 GCComName text,
 Token text,
@@ -68,10 +69,16 @@ TokenFromDate datetime
 )");
                 db.Execute(@"create table if not exists GSAKDatabase(
 Id integer PRIMARY KEY,
-UserId integer,
+UserId integer not null,
 Name text,
 Description text,
-CreatedAt datetime
+CreatedAt datetime not null
+)");
+                db.Execute(@"create table if not exists UserSessionInfo(
+Id integer PRIMARY KEY,
+UserId integer not null,
+SelectedGSAKDatabaseId integer,
+ActiveGCCode text
 )");
             });
         }

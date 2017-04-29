@@ -1,0 +1,13 @@
+﻿@model GAPPOnline.ViewModels.FormGroupSelectionItem
+
+<div class="form-group" @Html.Raw(Model.FormGroupAttributes)>
+    <label for="@string.Format("p{0}", Model.FieldName)" class="col-sm-3 control-label">@Model.Display:</label>
+    <div class="col-sm-9">
+        <select id="@string.Format("p{0}", Model.FieldName)" name="@string.Format("p{0}", Model.FieldName)" ng-model="@Model.FieldName" @Html.Raw(Model.FieldAttributes) class="form-control">
+            @foreach (var p in Model.Selection)
+            {
+                <option ng-selected="@p.Value == @Model.FieldName" value="@p.Value">@p.Text</option>
+            }
+        </select>
+    </div>
+</div>

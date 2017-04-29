@@ -10,11 +10,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using GAPPOnline.Services;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.SignalR.Infrastructure;
 
 namespace GAPPOnline
 {
     public class Startup
     {
+        public static IConnectionManager ConnectionManager;
         public static IHostingEnvironment HostingEnvironment { private set; get; }
 
         public Startup(IHostingEnvironment env)
@@ -42,7 +46,17 @@ namespace GAPPOnline
             services.AddAuthorization();
 
             // Add framework services.
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(opt =>
+            {
+                var resolver = opt.SerializerSettings.ContractResolver;
+                if (resolver != null)
+                {
+                    var res = resolver as DefaultContractResolver;
+                    res.NamingStrategy = null;  // <<!-- this removes the camelcasing
+                }
+                opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            });
+
 
             services.AddSignalR(options => options.Hubs.EnableDetailedErrors = true);
 
@@ -54,7 +68,7 @@ namespace GAPPOnline
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IServiceProvider serviceProvider)
         {
             HostingEnvironment = env;
 
@@ -99,6 +113,7 @@ namespace GAPPOnline
             app.UseSignalR();
 
             AccountService.Instance.GetUser("admin");
+            ConnectionManager = serviceProvider.GetService<IConnectionManager>();
         }
     }
 }

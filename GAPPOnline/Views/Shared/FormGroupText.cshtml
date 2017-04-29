@@ -1,0 +1,16 @@
+﻿@model GAPPOnline.ViewModels.FormGroupTextItem
+
+<div class="form-group" @Html.Raw(Model.FormGroupAttributes)>
+    <label for="@string.Format("p{0}", Model.FieldName)" class="col-sm-3 control-label">@Model.Display:</label>
+    <div class="col-sm-9">
+        @if (!string.IsNullOrWhiteSpace(Model.RowCount))
+        {
+            <textarea @string.Format("{0}", Model.MaxLength > -1 ? "maxlength=" + Model.MaxLength.ToString() : string.Empty) class="form-control" rows="@Model.RowCount" name="@string.Format("p{0}", Model.FieldName)" id="@string.Format("p{0}", Model.FieldName)" ng-model="@Model.FieldName" @Html.Raw(Model.FieldAttributes) placeholder="@Model.PlaceHolder"></textarea>
+        }
+        else
+        {
+            <input class="form-control" @string.Format("{0}", Model.MaxLength > -1 ? "maxlength=" + Model.MaxLength.ToString() : string.Empty) name="@string.Format("p{0}", Model.FieldName)" id="@string.Format("p{0}", Model.FieldName)" ng-model="@Model.FieldName" @Html.Raw(Model.FieldAttributes) ng-trim="true" placeholder="@Model.PlaceHolder" />
+        }
+    </div>
+</div>
+

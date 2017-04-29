@@ -1,0 +1,49 @@
+﻿@model GAPPOnline.ViewModels.FormGroupViewModel
+
+<div ng-app="@Model.NgApp" class="modal fade" id="@Model.DialogId" tabindex="-1" role="dialog" aria-labelledby="addItemLabel" aria-hidden="true">
+    <div class="modal-dialog" id="@Model.ControllerId" ng-controller="@Model.NgController">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">@Html.T("Close")</span></button>
+                <h4 class="modal-title" id="addItemLabel">@Model.Title</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" class="form-horizontal" name="myForm">
+                    @foreach (var field in Model.Items)
+                    {
+                        Html.RenderPartial(field.FormGroupType, field);
+                    }
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btnSave" type="button" class="btn btn-danger" data-dismiss="modal" ng-disabled="@Model.NgSaveDisabled" onclick="@Model.SaveFunction">@Html.T("Save")</button>
+                @if (Model.Buttons != null)
+                {
+                    foreach (var btn in Model.Buttons)
+                    {
+                        <button type="button" class="@string.Format("btn btn-{0}", btn.ButtonType)" data-dismiss="modal" id="@btn.Id" onclick="@btn.ClickFunction">@btn.Caption</button>
+                    }
+                }
+                <button type="button" class="btn btn-primary" data-dismiss="modal">@Html.T("Cancel")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#@Model.DialogId').on('shown.bs.modal', function () {
+            $(this).find('input:text:visible:first').focus();
+        });
+
+        $('#@Model.DialogId').on('keypress', function (e) {
+            if (e.which == 13 && !$('#btnSave').prop('disabled') && !$("*:focus").is("textarea")) {
+                if (!$('#btnSave').is(":focus")) {
+                    @Model.SaveFunction;
+                }
+                $(this).modal('toggle');
+            }
+        });
+    });
+
+</script>

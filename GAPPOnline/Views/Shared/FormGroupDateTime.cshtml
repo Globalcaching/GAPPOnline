@@ -1,0 +1,27 @@
+﻿@model GAPPOnline.ViewModels.FormGroupDateTimeItem
+
+<div class="form-group" @Html.Raw(Model.FormGroupAttributes)>
+    <label for="@string.Format("p{0}", Model.FieldName)" class="col-sm-3 control-label">@Model.Display:</label>
+    <div class="col-sm-9">
+        <div class='input-group date' id="@string.Format("p{0}", Model.FieldName).Replace(".", "_")">
+            <!-- the next input element has no ng-model="Model.FieldName" attribute because the binding doesn't work for the bootstrap datetimepicker -->
+            <input type='text' class="form-control" name="@string.Format("p{0}", Model.FieldName)" id="@Model.InputId" @Html.Raw(Model.FieldAttributes) />
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
+        <script type="text/javascript">
+            $(function () {
+                var id = "#@string.Format("p{0}", Model.FieldName).Replace(".", "_")"
+                $(id).datetimepicker(
+                    { format: 'YYYY/MM/DD HH:mm' }
+                );
+                $(id).on("dp.change", function (e) {
+                    @string.Format("{0}(e.date.utc());", Model.SelectMethod)
+                });
+            });
+        </script>
+    </div>
+</div>
+
+

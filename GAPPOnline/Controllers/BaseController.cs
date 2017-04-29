@@ -27,6 +27,20 @@ namespace GAPPOnline.Controllers
             LocalizationService.Instance.Initialize();
         }
 
+        protected SessionInfoViewModel GetSessionInfo()
+        {
+            var result = new SessionInfoViewModel();
+            GetSessionInfo(ref result);
+            return result;
+        }
+
+        protected void GetSessionInfo(ref SessionInfoViewModel sim)
+        {
+            sim.UserGuid = CurrentUser.UserGuid;
+            sim.UserName = CurrentUser.Name;
+            sim.SelectedGSAKDatabase = CurrentUser.SessionInfo.SelectedGSAKDatabaseId;
+            sim.ActiveGCCode = CurrentUser.SessionInfo.ActiveGCCode;
+        }
 
         protected string _T(string key, params object[] args)
         {

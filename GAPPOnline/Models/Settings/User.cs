@@ -10,10 +10,14 @@ namespace GAPPOnline.Models.Settings
     public class User
     {
         public long Id { get; set; }
+        public string UserGuid { get; set; }
         public string Name { get; set; }
         public string Password { get; set; }
         public string PreferredLanguage { get; set; }
         public long MemberTypeId { get; set; }
         public bool IsAdmin { get; set; }
+
+        [NPoco.Ignore]
+        public UserSessionInfo SessionInfo { get; set; }
     }
 }

@@ -14,7 +14,7 @@
                 <div id="gsakDatabaseList"></div>
             </div>
             <div class="panel-footer">
-            Panel footer
+                <button type="button" class="btn btn-primary" onclick="editGSAKDatabaseItem(null)">@Html.T("New")</button>
             </div>
         </div>
     </div>
@@ -24,22 +24,142 @@
                 <h3 class="panel-title">@Html.T("Views")</h3>
             </div>
             <div class="panel-body">
-                Panel content
             </div>
         </div>
     </div>
 </div>
 
+@Html.Partial("EditItemFormDlg", new GAPPOnline.ViewModels.FormGroupViewModel()
+{
+    NgApp = "formEditGSAKDatabase",
+    NgController = "EditGSAKDatabaseController",
+    NgSaveDisabled = "myForm.$invalid || item.NameIsInvalid",
+    ControllerId = "editGSAKDatabaseController",
+    DialogId = "dialog-addGSAKDatabaseItem",
+    Title = Html.T("Add/Edit GSAK database"),
+    SaveFunction = "saveGSAKDatabaseItem()",
+    Items = new List<GAPPOnline.ViewModels.FormGroupViewModelItem>()
+    {
+        new GAPPOnline.ViewModels.FormGroupTextValidationItem(Html.T("Name"), "item.Name")
+        {
+            FieldAttributes = "required",
+            BusyField = "busyNameCheck",
+            CheckMethod = "checkName()",
+            InvalidField = "item.NameIsInvalid",
+            PlaceHolder = Html.T("Enter name of database")
+        },
+        new GAPPOnline.ViewModels.FormGroupTextItem(Html.T("Description"), "item.Description")
+        {
+            PlaceHolder = Html.T("Enter description"),
+            RowCount = "3"
+        }
+    }
+})
+
+
 <script>
 
+    function sessionInfoUpdated(sessionInfo) {
+        gsakDatabaseList.refresh();
+    }
+    function dataChanged(data) {
+        if (data == 'GSAKDatabase') {
+            gsakDatabaseList.refresh();
+        }
+    }
+
     gsakDatabaseList = new pagedList.PagedList("#gsakDatabaseList", "@Url.Action("GetGSAKDatabases", "Home", new { area = "GAPPOnline" })");
+    gsakDatabaseList.pageSize = 10;
     gsakDatabaseList.addColumn("@Html.T("Name")")
         .enableFilter()
         .enableSort()
         .itemToHtml(function (item) { return htmlEncode(item.Name); });
+    gsakDatabaseList.addColumn("@Html.T("User")")
+        .enableFilter()
+        .enableSort()
+        .itemToHtml(function (item) { return htmlEncode(item.UserName); });
+    gsakDatabaseList.addColumn("@Html.T("Description")")
+        .enableSort()
+        .itemToHtml(function (item) { return htmlEncode(item.Description); });
+    gsakDatabaseList.addColumn("Created", "@Html.T("Created")")
+        .enableSort()
+        .itemToHtml(function (item) { return dateToText(item.CreatedAt); });
+    gsakDatabaseList.addButton("select", "@Html.T("select")", "btn btn-success btn-xs")
+        .onclick(function (item) { selectGSAKDatabase(item); })
+        .showIf(function (item) { return item.CanSelect; });
+    gsakDatabaseList.addButton("edit", "@Html.T("edit")", "btn btn-primary btn-xs")
+        .onclick(function (item) { editGSAKDatabase(item); })
+        .showIf(function (item) { return item.CanEdit; });
 
-    $(function () {
-        gsakDatabaseList.refresh();
-    });
+    function editGSAKDatabaseItem(item) {
+        var scope = angular.element($('#editGSAKDatabaseController')).scope();
+        scope.$apply(function () {
+            scope.item = {};
+        });
+        scope.$apply(function () {
+            if (item == null) {
+                item = {};
+            }
+            item.NameIsInvalid = item.Name == null || item.Name == undefined || item.Name == '';
+            scope.master = item;
+            scope.reset();
+        });
+        $('#dialog-addGSAKDatabaseItem').appendTo('body').modal();
+    }
+
+    function selectGSAKDatabase(item) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SelectGSAKDatabase", "Home", new { area = "GAPPOnline" })',
+            data: item,
+            success: function (response) {
+            },
+            error: function (data, errorText) {
+            }
+        });
+    }
+
+    function editGSAKDatabase(item) {
+        var scope = angular.element($('#editGSAKDatabaseController')).scope();
+        scope.$apply(function () {
+            scope.item = {};
+        });
+        scope.$apply(function () {
+            if (item == null) {
+                item = {};
+            }
+            item.NameIsInvalid = item.Name == null || item.Name == undefined || item.Name == '';
+            scope.master = item;
+            scope.reset();
+        });
+        $('#dialog-addGSAKDatabaseItem').appendTo('body').modal();
+    }
+
+    function saveGSAKDatabaseItem() {
+        var scope = angular.element($('#editGSAKDatabaseController')).scope();
+        scope.$apply(function () {
+            scope.update();
+        });
+    }
+
+    angular.module('formEditGSAKDatabase', [])
+        .controller('EditGSAKDatabaseController', ['$scope', function ($scope) {
+            $scope.master = {};
+            $scope.busyNameCheck = false;
+
+            $scope.update = function () {
+                saveRecordItem('@Url.Action("SaveGSAKDatabase", "Home", new { area = "GAPPOnline" })', $scope.item, null, null);
+            };
+
+            $scope.checkName = function () {
+                checkNameForItem('@Url.Action("CheckGSAKDatabaseName", "Home", new { area = "GAPPOnline" })', $scope);
+            }
+
+            $scope.reset = function () {
+                $scope.item = angular.copy($scope.master);
+            };
+
+            $scope.reset();
+        }]);
 
 </script>

@@ -1,0 +1,12 @@
+﻿@model GAPPOnline.ViewModels.FormGroupTextValidationItem
+
+<div class="form-group has-feedback" @Html.Raw(Model.FormGroupAttributes)>
+    <label for="@string.Format("p{0}", Model.FieldName)" class="col-sm-3 control-label">@Model.Display:</label>
+    <div class="col-sm-9">
+        <input class="form-control" name="@string.Format("p{0}", Model.FieldName)" id="@string.Format("p{0}", Model.FieldName)" ng-model="@Model.FieldName" maxlength="255" ng-model-options='{ debounce: 500 }' ng-change='@Model.CheckMethod' @Html.Raw(Model.FieldAttributes) ng-trim="true" placeholder="@Model.PlaceHolder" />
+        <i class="glyphicon glyphicon-refresh spinning form-control-feedback" style="color:gray; vertical-align:middle" ng-show="@Model.BusyField"></i>
+        <i class="glyphicon glyphicon-ok form-control-feedback" style="color:green; vertical-align:middle" ng-show="!@Model.InvalidField && !@Model.BusyField"></i>
+        <i class="glyphicon glyphicon-remove form-control-feedback" style="color:red; vertical-align:middle" ng-show="@Model.InvalidField && !@Model.BusyField"></i>
+    </div>
+</div>
+

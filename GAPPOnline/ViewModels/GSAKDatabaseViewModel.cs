@@ -5,6 +5,10 @@ namespace GAPPOnline.ViewModels
     public class GSAKDatabaseViewModelItem : Models.Settings.GSAKDatabase
     {
         public string UserName { get; set; }
+        public bool CanDelete { get; set; }
+        public bool CanEdit { get; set; }
+        public bool CanClone { get; set; }
+        public bool CanSelect { get; set; }
     }
 
     public class GSAKDatabaseViewModel : BaseViewModel

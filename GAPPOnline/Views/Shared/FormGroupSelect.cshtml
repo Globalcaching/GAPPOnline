@@ -1,0 +1,26 @@
+﻿@model GAPPOnline.ViewModels.FormGroupSelectItem
+
+<div class="form-group" @Html.Raw(Model.FormGroupAttributes)>
+    <label for="@string.Format("p{0}", Model.FieldName)" class="col-sm-3 control-label">@Model.Display:</label>
+    @if (string.IsNullOrWhiteSpace(Model.ClearMethod))
+    {
+        <div class="col-sm-7">
+            <input class="form-control" name="@string.Format("p{0}", Model.FieldName)" id="@string.Format("p{0}", Model.FieldName)" ng-model="@Model.FieldName" @Html.Raw(Model.FieldAttributes) readonly="readonly" />
+        </div>
+        <div class="col-sm-2">
+            <button class="btn btn-primary" data-dismiss="modal" id="@Model.SelectButtonId" onclick="@Model.SelectMethod">Select</button>
+        </div>
+    }
+    else
+    {
+        <div class="col-sm-5">
+            <input class="form-control" name="@string.Format("p{0}", Model.FieldName)" id="@string.Format("p{0}", Model.FieldName)" ng-model="@Model.FieldName" @Html.Raw(Model.FieldAttributes) readonly="readonly" />
+        </div>
+        <div class="col-sm-2">
+            <button class="btn btn-danger" id="@Model.ClearButtonId" onclick="@Model.ClearMethod">@Html.T("Clear")</button>
+        </div>
+        <div class="col-sm-2">
+            <button class="btn btn-primary" data-dismiss="modal" id="@Model.SelectButtonId" onclick="@Model.SelectMethod">Select</button>
+        </div>
+    }
+</div>
