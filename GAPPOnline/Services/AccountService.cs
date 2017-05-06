@@ -118,7 +118,7 @@ namespace GAPPOnline.Services
                     await httpContext.Authentication.SignInAsync("Cookie", userPrincipal,
                         new AuthenticationProperties
                         {
-                            ExpiresUtc = DateTime.UtcNow.AddMinutes(20),
+                            ExpiresUtc = DateTime.UtcNow.AddDays(20),
                             IsPersistent = rememberMe,
                             AllowRefresh = true
                         });

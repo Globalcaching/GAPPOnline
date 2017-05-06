@@ -1,0 +1,81 @@
+﻿@{
+    ViewData["Title"] = "Live API";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">@Html.T("Active account info")</h3>
+            </div>
+            <div class="panel-body">
+                todo: Live API account info
+            </div>
+            <div class="panel-footer">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">@Html.T("Views")</h3>
+            </div>
+            <div class="panel-body">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <button type="button" class="btn btn-primary" onclick="authorize()">@Html.T("Authorize")</button>
+                    </li>
+                    <li class="list-group-item">
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="authorizeDialog" tabindex="-1" role="dialog" aria-labelledby="confirmDialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">@Html.T("Close")</span></button>
+                <h4 class="modal-title" id="authorizeDialogTitle"></h4>
+            </div>
+            <div class="modal-body">
+                <iframe style="width: 100%; height:600px" id="authorizeIframe">
+
+                </iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">@Html.T("Close")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function sessionInfoUpdated(sessionInfo) {
+    }
+
+    function dataChanged(data) {
+        if (data == 'GSAKDatabase') {
+        }
+    }
+
+    function authorize() {
+        $("#authorizeDialog").appendTo('body').modal();
+        if ('@bool.Parse(Startup.Configuration["LiveAPI:TestMode"])' == 'True') {
+            $('#authorizeIframe').prop('src', 'http://application.globalcaching.eu/TokenRequest.aspx?target=staging')
+        }
+        else {
+            $('#authorizeIframe').prop('src', 'http://application.globalcaching.eu/TokenRequest.aspx')
+        }
+    }
+
+    window.addEventListener("message", function (event) {
+        $("#authorizeDialog").modal('hide');
+        GetYourUserProfile(event.data, null, null);
+    });
+</script>

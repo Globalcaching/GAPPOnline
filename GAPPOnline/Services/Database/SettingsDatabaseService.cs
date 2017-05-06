@@ -61,6 +61,7 @@ IsAdmin bit not null
 Id integer PRIMARY KEY,
 UserId integer not null,
 AvatarUrl text,
+MemberId integer not null,
 MemberTypeId integer not null,
 PublicGuid text,
 GCComName text,

@@ -15,7 +15,7 @@ namespace GAPPOnline.Models.Settings
         public long MemberId { get; set; }
         public string AvatarUrl { get; set; }
         public long MemberTypeId { get; set; }
-        public Guid PublicGuid { get; set; }
+        public string PublicGuid { get; set; }
         public string GCComName { get; set; }
         public string Token { get; set; }
         public DateTime TokenFromDate { get; set; }
