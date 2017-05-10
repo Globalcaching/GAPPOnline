@@ -72,16 +72,6 @@
 
 
 <script>
-
-    function sessionInfoUpdated(sessionInfo) {
-        gsakDatabaseList.refresh();
-    }
-    function dataChanged(data) {
-        if (data == 'GSAKDatabase') {
-            gsakDatabaseList.refresh();
-        }
-    }
-
     gsakDatabaseList = new pagedList.PagedList("#gsakDatabaseList", "@Url.Action("GetGSAKDatabases", "Home", new { area = "GAPPOnline" })");
     gsakDatabaseList.pageSize = 10;
     gsakDatabaseList.addColumn("@Html.T("Name")")
@@ -175,5 +165,13 @@
 
             $scope.reset();
         }]);
+
+    $(function () {
+        SignalR.registerOnServer();
+        SignalR.registerOnClient(["UserSessionInfo", "GSAKDatabase"], function () {
+            gsakDatabaseList.refresh();
+        });
+        gsakDatabaseList.refresh();
+    });
 
 </script>

@@ -69,6 +69,7 @@ namespace GAPPOnline.Services.Database
                 try
                 {
                     db.AbortTransaction();
+                    Console.WriteLine(e.Message);
                 }
                 catch
                 {

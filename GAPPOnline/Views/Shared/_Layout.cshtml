@@ -1,5 +1,4 @@
-﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -16,8 +15,6 @@
         <link rel="stylesheet" href="~/css/GAPPOnline.min.css" asp-append-version="true" />
     </environment>
 
-    @Html.Raw(JavaScriptSnippet.FullScript)
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="~/lib/angular/angular.min.js"></script>
@@ -32,7 +29,7 @@
     <environment names="Development">
         <script src="~/js/bindWithDelay.js"></script>
         <script src="~/js/BusyWaitDialog.js"></script>
-        <script src="~/js/pagedList.js"></script>
+        <script src="~/js/pagedList.min.js"></script>
         <script src="~/js/GAPPOnline.js"></script>
         <script src="~/js/LiveAPI.js"></script>
     </environment>
@@ -163,24 +160,6 @@
                     $(this).remove();
                 });
             });
-
-            var dataChangedHub = $.connection.dataChangedHub;
-            dataChangedHub.client.sessionInfoUpdated = function (sessionInfo) {
-                if (typeof window.sessionInfoUpdated !== 'undefined') {
-                    window.sessionInfoUpdated(sessionInfo);
-                }
-            };
-            dataChangedHub.client.dataChanged = function (data) {
-                if (typeof window.dataChanged !== 'undefined') {
-                    window.dataChanged(data);
-                }
-            };
-            $.connection.hub.start().done(function () {
-                var g = '@DynamicExtension.GetSavePropertyValue(Model, "UserGuid")';
-                if (g != '') {
-                    dataChangedHub.server.registerUser(g);
-                }
-            });
         });
 
         $(document).ajaxStart(function () {
@@ -211,6 +190,12 @@
         });
         $(document).ajaxStop(function () {
         });
+
+        if ('@DynamicExtension.GetSavePropertyValue(Model, "UserGuid")' != '') {
+          SessionInfo = @Html.Raw(Json.Serialize(Model))
+          SignalR = SignalRHandler(SessionInfo.UserGuid, "DataChangedHub", 'RegisterForChanges', 'ReportChanges');
+        }
+
     </script>
 
 

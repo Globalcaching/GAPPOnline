@@ -56,14 +56,6 @@
 
 <script>
 
-    function sessionInfoUpdated(sessionInfo) {
-    }
-
-    function dataChanged(data) {
-        if (data == 'GSAKDatabase') {
-        }
-    }
-
     function authorize() {
         $("#authorizeDialog").appendTo('body').modal();
         if ('@bool.Parse(Startup.Configuration["LiveAPI:TestMode"])' == 'True') {
@@ -78,4 +70,9 @@
         $("#authorizeDialog").modal('hide');
         GetYourUserProfile(event.data, null, null);
     });
+
+    $(function () {
+        SignalR.registerOnServer();
+    });
+
 </script>

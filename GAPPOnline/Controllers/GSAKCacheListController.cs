@@ -33,5 +33,21 @@ namespace GAPPOnline.Controllers
                 , sortOn: sortOn, sortAsc: sortAsc ?? true));
         }
 
+        [HttpPost]
+        [Authorize]
+        public IActionResult SetUserFlag(string gcCode, bool value)
+        {
+            GSAKDatabaseService.Instance.SetUserFlag(CurrentUser, gcCode, value);
+            return Json(null);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult SetActiveGeocache(string gcCode)
+        {
+            GSAKDatabaseService.Instance.SetActiveGeocache(CurrentUser, gcCode);
+            return Json(null);
+        }
+
     }
 }

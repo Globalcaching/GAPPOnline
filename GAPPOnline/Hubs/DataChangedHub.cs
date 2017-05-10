@@ -1,6 +1,7 @@
 ﻿using GAPPOnline.Models.Settings;
 using GAPPOnline.Services;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Hubs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,14 @@ using System.Threading.Tasks;
 
 namespace GAPPOnline.Hubs
 {
-    public class DataChangedHub: Hub
+    [HubName("DataChangedHub")]
+    public class DataChangedHub : Hub
     {
         private static IHubContext _context;
+
+        public DataChangedHub()
+        {
+        }
 
         private static IHubContext HubContext
         {
@@ -44,25 +50,27 @@ namespace GAPPOnline.Hubs
             return base.OnReconnected();
         }
 
-        public async Task RegisterUser(string userGuid)
+        [HubMethodName("RegisterForChanges")]
+        public void RegisterForChanges(string userGuid)
         {
-            var u = AccountService.Instance.GetUserByUserGuid(userGuid);
-            if (u != null)
-            {
-                await Groups.Add(Context.ConnectionId, userGuid);
-                Clients.Group(u.UserGuid).sessionInfoUpdated(u.SessionInfo);
-            }
+            this.Groups.Add(this.Context.ConnectionId, userGuid);
+        }
+
+        [HubMethodName("ReportChanges")]
+        public void ReportChanges(string userGuid, string[] changes, string data)
+        {
+            this.Clients.Group(userGuid).ReportChanges(null, changes, data);
         }
 
         //server can call this method
-        public static void SendSessionInfoToClient(User user)
+        public static void ReportChangeToClients(Models.Settings.User user, string change)
         {
-            HubContext.Clients.Group(user.UserGuid).sessionInfoUpdated(user.SessionInfo);
+            HubContext.Clients.Group(user.UserGuid).ReportChanges(user.SessionInfo, new string[] { change });
         }
 
-        public static void SendDataChangedToClient(User user, string data)
+        public static void ReportChangesToClients(Models.Settings.User user, string[] changes)
         {
-            HubContext.Clients.Group(user.UserGuid).dataChanged(data);
+            HubContext.Clients.Group(user.UserGuid).ReportChanges(user.SessionInfo, changes);
         }
 
     }

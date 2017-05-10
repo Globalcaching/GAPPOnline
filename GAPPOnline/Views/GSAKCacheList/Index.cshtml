@@ -7,20 +7,36 @@
 <div id="gsakGeocacheList"></div>
 
 <script>
-
-    function sessionInfoUpdated(sessionInfo) {
-        if (sessionInfo.SelectedGSAKDatabaseId != null) {
-            gsakGeocacheList.refresh();
-        }
-    }
-    function dataChanged(data) {
-        if (data == 'GSAKDatabase') {
-            //gsakGeocacheList.refresh();
-        }
-    }
-
     gsakGeocacheList = new pagedList.PagedList("#gsakGeocacheList", "@Url.Action("GetGeocaches", "GSAKCacheList", new { area = "GAPPOnline" })");
+    gsakGeocacheList.rowStyles(function (item) {
+        var styles = ""
+        //font style
+        if (item.Status=='X') {
+            styles = "text-decoration: line-through;";
+        }
+        else if (item.Status == 'T') {
+            styles = "font-style: italic;";
+        }
+        //background color
+        if (item.Code == SessionInfo.ActiveGCCode) {
+            styles = "background-color: LightCyan;";
+        }
+        else if (item.Found == 1) {
+            styles = "background-color: Aquamarine;";
+        }
+        return styles;
+    });
     gsakGeocacheList.pageSize = 50;
+    gsakGeocacheList.addColumn('')
+        .itemToElement(function (item) {
+        var element = document.createElement('i');
+        element.setAttribute('class', 'glyphicon glyphicon-hand-right');
+        element.setAttribute('style', 'vertical-align:middle;cursor:pointer;');
+        $(element).click(function (event) {
+            $.post("@Url.Action("SetActiveGeocache", "GSAKCacheList")", { gcCode: item.Code });
+        });
+        return element;
+        });
     gsakGeocacheList.addColumn("@Html.T("Code")")
         .enableFilter()
         .enableSort()
@@ -30,7 +46,18 @@
     gsakGeocacheList.addColumn('<i class="glyphicon glyphicon-tag" style="vertical-align:middle"></i>')
         .itemToHtml(function (item) { return (item.HasTravelBug == 1) ? '<i class="glyphicon glyphicon-tag" style="vertical-align:middle"></i>' : ''; });
     gsakGeocacheList.addColumn('<i class="glyphicon glyphicon-flag" style="vertical-align:middle"></i>')
-        .itemToHtml(function (item) { return (item.UserFlag == 1) ? '<i class="glyphicon glyphicon-flag" style="vertical-align:middle"></i>' : ''; });
+        .itemToElement(function (item) {
+        var element = document.createElement('input');
+        element.type = 'checkbox';
+        if (item.UserFlag == 1) {
+            element.setAttribute('checked', 'checked');
+        }
+        element.name = 'userflag';
+        $(element).change(function (event) {
+            $.post("@Url.Action("SetUserFlag", "GSAKCacheList")", { gcCode: item.Code, value: element.checked });
+        });
+        return element;
+    });
     gsakGeocacheList.addColumn("@Html.T("Name")")
         .enableFilter()
         .enableSort()
@@ -53,5 +80,14 @@
     gsakGeocacheList.addColumn("@Html.T("T")")
         .enableSort()
         .itemToHtml(function (item) { return item.Terrain.toFixed(1); });
+
+    $(function () {
+        SignalR.registerOnServer();
+        SignalR.registerOnClient(["UserSessionInfo", "GSAKDatabase"], function () {
+            gsakGeocacheList.refresh();
+        });
+        gsakGeocacheList.refresh();
+    });
+
 
 </script>

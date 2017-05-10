@@ -42,6 +42,28 @@ namespace GAPPOnline.Services
             }
         }
 
+        public void SetUserFlag(Models.Settings.User user, string gcCode, bool value)
+        {
+            GSAKDatabaseInstance.Execute(GetGSAKDatabaseFile(user), (db) =>
+            {
+                db.Execute("update Caches set UserFlag=@0 where Code=@1", value ? 1 : 0, gcCode);
+            });
+            DataChangedHub.ReportChangeToClients(user, "GSAKDatabase");
+        }
+
+        public void SetActiveGeocache(Models.Settings.User user, string gcCode)
+        {
+            if (user.SessionInfo.ActiveGCCode != gcCode)
+            {
+                SettingsDatabaseService.Instance.Execute((db) =>
+                {
+                    user.SessionInfo.ActiveGCCode = gcCode;
+                    db.Save(user.SessionInfo);
+                });
+                DataChangedHub.ReportChangeToClients(user, "UserSessionInfo");
+            }
+        }
+
         public GSAKDatabaseViewModel GetGSAKDatabases(Models.Settings.User user, int page, int pageSize, long? userId = null, string filterName = "", string filterUserName = "", string sortOn = "", bool sortAsc = true)
         {
             var sql = NPoco.Sql.Builder.Select("GSAKDatabase.*")
@@ -87,7 +109,7 @@ namespace GAPPOnline.Services
                     db.Save(user.SessionInfo);
                 }
             });
-            DataChangedHub.SendSessionInfoToClient(user);
+            DataChangedHub.ReportChangeToClients(user, "UserSessionInfo");
         }
 
         public void SaveGSAKDatabase(Models.Settings.User user, Models.Settings.GSAKDatabase item)
@@ -111,7 +133,7 @@ namespace GAPPOnline.Services
                     NotificationService.Instance.AddSuccessMessage(_T("Changes have been saved."));
                 }
             });
-            DataChangedHub.SendDataChangedToClient(user, "GSAKDatabase");
+            DataChangedHub.ReportChangeToClients(user, "GSAKDatabase");
         }
 
         public bool CheckGSAKDatabaseName(Models.Settings.User user, Models.Settings.GSAKDatabase item)
@@ -168,16 +190,9 @@ namespace GAPPOnline.Services
             var sql = NPoco.Sql.Builder.Select("Caches.*")
                 .Append(", 1 as CanDelete")
                 .Append(", 1 as CanEdit")
-                .Append(", 0 as CanClone");
-            if (user.SessionInfo?.ActiveGCCode == null)
-            {
-                sql = sql.Append(", 1 as CanSelect");
-            }
-            else
-            {
-                sql = sql.Append($", (Caches.Code <> {user.SessionInfo.ActiveGCCode}) as CanSelect");
-            }
-            sql = sql.From("Caches")
+                .Append(", 0 as CanClone")
+                .Append(", 1 as CanSelect")
+                .From("Caches")
             .Where("1=1");
             if (!string.IsNullOrEmpty(filterCode))
             {
