@@ -67,6 +67,22 @@ namespace GAPPOnline.Services
                 _cache.Clear();
                 LocalizationDatabaseService.Instance.Execute((db) =>
                 {
+                    var hs = new HashSet<string>();
+                    var allOrgText = db.Fetch<LocalizationOriginalText>();
+                    foreach (var ot in allOrgText)
+                    {
+                        hs.Add(ot.OriginalText);
+                    }
+                    foreach (var t in Data.OriginalText.Entries)
+                    {
+                        if (!hs.Contains(t))
+                        {
+                            var m = new LocalizationOriginalText();
+                            m.OriginalText = t;
+                            db.Save(m);
+                        }
+                    }
+
                     var lc = db.FirstOrDefault<LocalizationCulture>("where Name = 'en-US' COLLATE NOCASE");
                     if (lc == null)
                     {
@@ -98,11 +114,8 @@ namespace GAPPOnline.Services
 
             CultureInfo.CurrentCulture = ci;
             CultureInfo.CurrentUICulture = ci;
-            //Thread.CurrentThread.CurrentCulture = ci;
-            //Thread.CurrentThread.CurrentUICulture = ci;
         }
 
-        //[IHttpContextAccessor contextAccessor]
         public LocalizationCulture CurrentCulture
         {
             get

@@ -48,6 +48,7 @@
   <ItemGroup>
     <Folder Include="Models\Localization\" />
     <Folder Include="Models\GSAK\" />
+    <Folder Include="Data\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services" />

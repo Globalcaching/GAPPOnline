@@ -111,11 +111,11 @@ namespace GAPPOnline.Services
             result.LiveAPIResult = res;
             if (res?.Status?.StatusCode != 0)
             {
-                NotificationService.Instance.AddErrorMessage(_T("Live API error: " + "GetYourUserProfile: " + res?.Status?.StatusMessage ?? ""));
+                NotificationService.Instance.AddErrorMessage(_T("Live API call error:") + " GetYourUserProfile: " + res?.Status?.StatusMessage ?? "");
             }
             else
             {
-                NotificationService.Instance.AddSuccessMessage(_T("Live API call success: " + "GetYourUserProfile"));
+                NotificationService.Instance.AddSuccessMessage(_T("Live API call success:") + " GetYourUserProfile");
                 SettingsDatabaseService.Instance.ExecuteWithinTransaction((db) =>
                 {
                     var gcComUser = db.FirstOrDefault<GCComUser>("where UserId=@0 and MemberId=@1", user.Id, res.Profile.User.Id);
