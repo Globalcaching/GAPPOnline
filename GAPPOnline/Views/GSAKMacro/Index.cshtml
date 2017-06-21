@@ -1,0 +1,87 @@
+﻿@{
+    ViewData["Title"] = "GSAK Macro";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div>
+    <button type="button" class="btn btn-success" onclick="uploadGSAKMacro()"><i class="glyphicon glyphicon-plus"></i>&nbsp;@Html.T("Upload GSAK Macro")</button>
+    <input id="fileupload" type="file" name="file" accept=".gsk">
+</div>
+
+<div id="gsakMacroList"></div>
+
+
+<script>
+    var macroHub;
+
+    gsakMacroList = new pagedList.PagedList("#gsakMacroList", "@Url.Action("GetGSAKMacros", "GSAKMacro", new { area = "GAPPOnline" })");
+    gsakMacroList.pageSize = 50;
+    gsakMacroList.addColumn("@Html.T("Name")")
+        .enableSort()
+        .itemToHtml(function (item) { return htmlEncode(item.FileName); });
+    gsakMacroList.addColumn("@Html.T("Author")")
+        .itemToHtml(function (item) { return htmlEncode(item.Author); });
+    gsakMacroList.addButton("Run", "@Html.T("Run")", "btn btn-primary btn-xs")
+        .onclick(function (item) { runMacro(item); })
+        .showIf(function (item) { return true; });
+
+
+    function runMacro(item) {
+        macroHub.server.RunMacro(SessionInfo.UserGuid, item.FileName);
+    }
+
+    function uploadGSAKMacro() {
+        $("#fileupload").trigger("click");
+    }
+
+    $(function () {
+        macroHub = $.connection.GSAKMacroHub;
+
+        macroHub.client.MsgOK = function (text) {
+            alert(text);
+        };
+
+        var fileName = "";
+
+        $('#fileupload').fileupload({
+            url: '@Url.Action("UploadGSAKMacro", "GSAKMacro", new { area = "GAPPOnline" })',
+            autoUpload: true,
+            progressall: function (e, data) {
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('#progress .progress-bar').css('width', progress + '%');
+            },
+        });
+        $('#fileupload').bind('fileuploadadd', function (e, data) {
+            $.each(data.files, function (index, file) {
+                fileName = file.name;
+            });
+            data.submit();
+        });
+        $('#fileupload').bind('fileuploadsubmit', function (e, data) {
+            // The example input, doesn't have to be part of the upload form:
+            data.formData = {
+                filename: fileName
+                };
+            return true;
+        });
+        $('#fileupload').bind('fileuploadstart', function (e) {
+            // The example input, doesn't have to be part of the upload form:
+            $('#dialog-fileupload').appendTo('body').modal({ "backdrop": "static", "keyboard": false });
+            return true;
+        });
+        $('#fileupload').bind('fileuploadstop', function (e) {
+            // The example input, doesn't have to be part of the upload form:
+            $('#dialog-fileupload').modal('hide');
+            return true;
+        });
+        $('#fileupload').hide();
+
+        SignalR.registerOnServer();
+        SignalR.registerOnClient(["GSAKMacro", "UserSessionInfo"], function () {
+            gsakMacroList.refresh();
+        });
+        gsakMacroList.refresh();
+    });
+
+</script>

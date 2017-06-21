@@ -81,6 +81,20 @@ UserId integer not null,
 SelectedGSAKDatabaseId integer,
 ActiveGCCode text
 )");
+
+                db.Execute(@"create table if not exists GSAKMacro(
+Id integer PRIMARY KEY,
+UserId integer not null,
+FileName text,
+Description text,
+Version text,
+FileDate datetime,
+LastRun datetime,
+RunCount integer,
+Author text,
+Url text,
+UserData text default '' not null
+)");
             });
         }
 
