@@ -56,9 +56,25 @@ namespace GAPPOnline.Hubs
             GSAKMacroService.Instance.RunMacro(this.Context.ConnectionId, userGuid, filename);
         }
 
-        public static void MsgOK(string userGuid, string msg)
+        [HubMethodName("MsgOKResult")]
+        public void MsgOKResult(string userGuid)
         {
-            HubContext.Clients.Client(userGuid).MsgOK(msg);
+            GSAKMacroService.Instance.MsgOKResult(this.Context.ConnectionId);
+        }
+
+        public static void MacroIsStarted(string userGuid)
+        {
+            HubContext.Clients.Client(userGuid).MacroIsRunning();
+        }
+
+        public static void MacroIsFinished(string userGuid)
+        {
+            HubContext.Clients.Client(userGuid).MacroIsFinished();
+        }
+
+        public static void MsgOK(string userGuid, string msg, string caption)
+        {
+            HubContext.Clients.Client(userGuid).MsgOK(msg, caption);
         }
 
     }

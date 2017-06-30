@@ -11,13 +11,15 @@ using System.Threading.Tasks;
 
 namespace GAPPOnline.Services
 {
-    public class GSAKMacroService
+    public partial class GSAKMacroService
     {
         private static GSAKMacroService _uniqueInstance = null;
         private static object _lockObject = new object();
+        private Dictionary<string, Macro> _runningMacros;
 
         private GSAKMacroService()
         {
+            _runningMacros = new Dictionary<string, Macro>();
         }
 
         public static GSAKMacroService Instance
@@ -38,7 +40,7 @@ namespace GAPPOnline.Services
             }
         }
 
-        private string GetGSAKMacroFolder(long userId, bool createIfNotExists = false)
+        protected string GetGSAKMacroFolder(long userId, bool createIfNotExists = false)
         {
             var result = Path.Combine(Startup.HostingEnvironment.ContentRootPath, "App_Data");
             if (createIfNotExists && !Directory.Exists(result))
@@ -132,7 +134,37 @@ namespace GAPPOnline.Services
 
         public void RunMacro(string connectionId, string userGuid, string filename)
         {
-            
+            var usr = AccountService.Instance.GetUserByUserGuid(userGuid);
+            if (usr != null)
+            {
+                var macro = new Macro(usr, filename);
+                lock (_runningMacros)
+                {
+                    //todo: stop current macro if one
+                    _runningMacros.Add(connectionId, macro);
+                }
+                var conId = connectionId;
+                Task.Factory.StartNew(() =>
+                {
+                    try
+                    {
+                        macro.Run(conId, null, 0);
+                    }
+                    catch
+                    {
+                    }
+                    lock (_runningMacros)
+                    {
+                        _runningMacros.Remove(connectionId);
+                    }
+                });
+
+            }
+        }
+
+        public void MsgOKResult(string connectionId)
+        {
+
         }
     }
 }

@@ -11,6 +11,33 @@
 
 <div id="gsakMacroList"></div>
 
+<div class="modal fade" id="macroRunningDialog" tabindex="-1" role="dialog" aria-labelledby="macroRunningDialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p id="macroRunningDialogMessage">@Html.T("Macro is running")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="msgOkDialog" tabindex="-1" role="dialog" aria-labelledby="msgOkDialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="msgOKDialog()"><span aria-hidden="true">&times;</span><span class="sr-only">@Html.T("Close")</span></button>
+                <h4 class="modal-title" id="msgOkDialogTitle"></h4>
+            </div>
+            <div class="modal-body">
+                <p id="msgOkDialogMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="msgOkDialogButton" class="btn btn-danger" data-dismiss="modal" onclick="msgOKDialog()">@Html.T("OK")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script>
     var macroHub;
@@ -35,11 +62,24 @@
         $("#fileupload").trigger("click");
     }
 
+    function msgOKDialog() {
+        macroHub.server.MsgOKResult();
+    }
+
     $(function () {
         macroHub = $.connection.GSAKMacroHub;
 
-        macroHub.client.MsgOK = function (text) {
-            alert(text);
+        macroHub.client.MsgOK = function (text, caption) {
+            $('#msgOkDialogTitle').text(caption);
+            $('#msgOkDialogMessage').text(text);
+            $("#msgOkDialog").appendTo('body').modal();
+        };
+
+        macroHub.client.MacroIsStarted = function () {
+            $("#macroRunningDialog").appendTo('body').modal({ show: true, backdrop: 'static', keyboard: false });
+        };
+        macroHub.client.MacroIsFinished = function () {
+            window.location.refresh(true);
         };
 
         var fileName = "";
