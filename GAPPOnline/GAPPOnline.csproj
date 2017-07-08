@@ -14,9 +14,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="wwwroot\js\GSAKMacro.js">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
     <Content Include="wwwroot\js\LiveAPI.js" />
   </ItemGroup>
   <ItemGroup>

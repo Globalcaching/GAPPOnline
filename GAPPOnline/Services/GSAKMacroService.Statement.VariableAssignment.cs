@@ -15,15 +15,43 @@ namespace GAPPOnline.Services
     {
         public class StatementVariableAssignment : Statement
         {
+            private Calculation calc = null;
+            private string VariableName;
+            private Variable Variable;
+
             public StatementVariableAssignment(Line line, string variableName, string statement): 
                 base(line, statement)
             {
+                VariableName = variableName;
+                statement = statement.Trim();
+                if (statement.Length == 0)
+                {
+                    Line.SyntaxError("Expected '='");
+                }
+                statement = statement.Substring(1).Trim();
+                if (statement.Length == 0)
+                {
+                    Line.SyntaxError("Expected a statement after '='");
+                }
+                calc = new Calculation(line.Macro, this, statement);
             }
 
-            protected override int PreExecuteStatement()
+            protected override int ExecuteStatement()
             {
-
-                //default: next statement
+                if (Variable == null)
+                {
+                    Variable v;
+                    if (!Line.Macro.Variables.TryGetValue(VariableName, out v))
+                    {
+                        Variable = new Variable(Line.Macro, VariableName);
+                        Line.Macro.Variables.Add(VariableName, Variable);
+                    }
+                    else
+                    {
+                        Variable = v;
+                    }
+                }
+                Variable.Value = calc.Value;
                 return Line.LineNumber + 1;
             }
 

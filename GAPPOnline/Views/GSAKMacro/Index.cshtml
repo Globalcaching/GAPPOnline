@@ -75,11 +75,11 @@
             $("#msgOkDialog").appendTo('body').modal();
         };
 
-        macroHub.client.MacroIsStarted = function () {
+        macroHub.client.macroIsStarted = function () {
             $("#macroRunningDialog").appendTo('body').modal({ show: true, backdrop: 'static', keyboard: false });
         };
-        macroHub.client.MacroIsFinished = function () {
-            window.location.refresh(true);
+        macroHub.client.macroIsFinished = function () {
+            window.location.reload(true);
         };
 
         var fileName = "";

@@ -59,6 +59,10 @@ namespace GAPPOnline.Services
                                 Statement = (Statement)constructor.Invoke(new object[] { this, words.Length>1 ? words[1] : "" });
                             }
                         }
+                        if (Statement == null)
+                        {
+                            SyntaxError($"Unknown statement: {words[0]}");
+                        }
                     }
                 }
                 return result;
@@ -81,6 +85,11 @@ namespace GAPPOnline.Services
                     Statement.Dispose();
                     Statement = null;
                 }
+            }
+
+            public void SyntaxError(string message)
+            {
+                throw new Exception($"Syntax error in line {LineNumber}: {message}");
             }
 
             private string StripComments(string line)

@@ -62,19 +62,19 @@ namespace GAPPOnline.Hubs
             GSAKMacroService.Instance.MsgOKResult(this.Context.ConnectionId);
         }
 
-        public static void MacroIsStarted(string userGuid)
+        public static void MacroIsStarted(string connectionId)
         {
-            HubContext.Clients.Client(userGuid).MacroIsRunning();
+            HubContext.Clients.Client(connectionId).MacroIsRunning();
         }
 
-        public static void MacroIsFinished(string userGuid)
+        public static void MacroIsFinished(string connectionId)
         {
-            HubContext.Clients.Client(userGuid).MacroIsFinished();
+            HubContext.Clients.Client(connectionId).MacroIsFinished();
         }
 
-        public static void MsgOK(string userGuid, string msg, string caption)
+        public static void MsgOK(string connectionId, string msg, string caption)
         {
-            HubContext.Clients.Client(userGuid).MsgOK(msg, caption);
+            HubContext.Clients.Client(connectionId).MsgOK(msg, caption);
         }
 
     }

@@ -132,34 +132,49 @@ namespace GAPPOnline.Services
             });
         }
 
-        public void RunMacro(string connectionId, string userGuid, string filename)
+        public void RunMacro(string pconnectionId, string puserGuid, string pfilename)
         {
-            var usr = AccountService.Instance.GetUserByUserGuid(userGuid);
-            if (usr != null)
+            string connectionId = pconnectionId;
+            string userGuid = puserGuid;
+            string filename = pfilename;
+            Task.Factory.StartNew(() =>
             {
-                var macro = new Macro(usr, filename);
-                lock (_runningMacros)
+                var usr = AccountService.Instance.GetUserByUserGuid(userGuid);
+                if (usr != null)
                 {
-                    //todo: stop current macro if one
-                    _runningMacros.Add(connectionId, macro);
-                }
-                var conId = connectionId;
-                Task.Factory.StartNew(() =>
-                {
+                    var macro = new Macro(usr, filename);
+                    Macro currentMacro;
+                    lock (_runningMacros)
+                    {
+                        _runningMacros.TryGetValue(connectionId, out currentMacro);
+                    }
+                    if (currentMacro != null)
+                    {
+                        currentMacro.Stop();
+                        _runningMacros.Remove(connectionId);
+                    }
+                    lock (_runningMacros)
+                    {
+                        _runningMacros.Add(connectionId, macro);
+                    }
+                    var conId = connectionId;
+                    GSAKMacroHub.MacroIsStarted(conId);
                     try
                     {
                         macro.Run(conId, null, 0);
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        NotificationService.Instance.AddErrorMessage(e.Message);
                     }
                     lock (_runningMacros)
                     {
                         _runningMacros.Remove(connectionId);
                     }
-                });
-
-            }
+                    macro.Dispose();
+                    GSAKMacroHub.MacroIsFinished(conId);
+                }
+            });
         }
 
         public void MsgOKResult(string connectionId)
