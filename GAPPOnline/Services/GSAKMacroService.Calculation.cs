@@ -413,6 +413,32 @@ namespace GAPPOnline.Services
                             result = Math.Pow((long)val1, (double)val2);
                         }
                         break;
+                    case "=":
+                        if (val1.GetType() == val2.GetType())
+                        {
+                            result = val1 == val2;
+                        }
+                        else if (val1.GetType() == typeof(double) && val2.GetType() == typeof(long))
+                        {
+                            result = (double)val1 < (long)val2;
+                        }
+                        else if (val1.GetType() == typeof(long) && val2.GetType() == typeof(double))
+                        {
+                            result = (long)val1 == (double)val2;
+                        }
+                        else if (val1.GetType() == typeof(Version) && val2.GetType() == typeof(Version))
+                        {
+                            result = (Version)val1 == (Version)val2;
+                        }
+                        else if (val1.GetType() == typeof(string))
+                        {
+                            result = Convert.ChangeType(val1, val2.GetType()) == val2;
+                        }
+                        else if (val2.GetType() == typeof(string))
+                        {
+                            result = Convert.ChangeType(val2, val1.GetType()) == val1;
+                        }
+                        break;
                     case "<":
                         if (val1.GetType() == typeof(string) && val2.GetType() == typeof(string))
                         {
@@ -433,6 +459,18 @@ namespace GAPPOnline.Services
                         else if (val1.GetType() == typeof(long) && val2.GetType() == typeof(double))
                         {
                             result = (long)val1 < (double)val2;
+                        }
+                        else if (val1.GetType() == typeof(Version) && val2.GetType() == typeof(Version))
+                        {
+                            result = (Version)val1 < (Version)val2;
+                        }
+                        else if (val1.GetType() == typeof(Version) && val2.GetType() == typeof(string))
+                        {
+                            result = (Version)val1 < Version.Parse((string)val2);
+                        }
+                        else if (val1.GetType() == typeof(string) && val2.GetType() == typeof(Version))
+                        {
+                            result = Version.Parse((string)val1) < (Version)val2;
                         }
                         break;
                     case "<=":
@@ -456,6 +494,18 @@ namespace GAPPOnline.Services
                         {
                             result = (long)val1 <= (double)val2;
                         }
+                        else if (val1.GetType() == typeof(Version) && val2.GetType() == typeof(Version))
+                        {
+                            result = (Version)val1 <= (Version)val2;
+                        }
+                        else if (val1.GetType() == typeof(Version) && val2.GetType() == typeof(string))
+                        {
+                            result = (Version)val1 <= Version.Parse((string)val2);
+                        }
+                        else if (val1.GetType() == typeof(string) && val2.GetType() == typeof(Version))
+                        {
+                            result = Version.Parse((string)val1) <= (Version)val2;
+                        }
                         break;
                     case ">=":
                         if (val1.GetType() == typeof(string) && val2.GetType() == typeof(string))
@@ -477,6 +527,18 @@ namespace GAPPOnline.Services
                         else if (val1.GetType() == typeof(long) && val2.GetType() == typeof(double))
                         {
                             result = (long)val1 >= (double)val2;
+                        }
+                        else if (val1.GetType() == typeof(Version) && val2.GetType() == typeof(Version))
+                        {
+                            result = (Version)val1 >= (Version)val2;
+                        }
+                        else if (val1.GetType() == typeof(Version) && val2.GetType() == typeof(string))
+                        {
+                            result = (Version)val1 >= Version.Parse((string)val2);
+                        }
+                        else if (val1.GetType() == typeof(string) && val2.GetType() == typeof(Version))
+                        {
+                            result = Version.Parse((string)val1) >= (Version)val2;
                         }
                         break;
                     case ">":
@@ -500,6 +562,18 @@ namespace GAPPOnline.Services
                         {
                             result = (long)val1 > (double)val2;
                         }
+                        else if (val1.GetType() == typeof(Version) && val2.GetType() == typeof(Version))
+                        {
+                            result = (Version)val1 > (Version)val2;
+                        }
+                        else if (val1.GetType() == typeof(Version) && val2.GetType() == typeof(string))
+                        {
+                            result = (Version)val1 > Version.Parse((string)val2);
+                        }
+                        else if (val1.GetType() == typeof(string) && val2.GetType() == typeof(Version))
+                        {
+                            result = Version.Parse((string)val1) > (Version)val2;
+                        }
                         break;
                     case "<>":
                         if (val1.GetType() == typeof(string) && val2.GetType() == typeof(string))
@@ -521,6 +595,18 @@ namespace GAPPOnline.Services
                         else if (val1.GetType() == typeof(long) && val2.GetType() == typeof(double))
                         {
                             result = (long)val1 != (double)val2;
+                        }
+                        else if (val1.GetType() == typeof(Version) && val2.GetType() == typeof(Version))
+                        {
+                            result = (Version)val1 != (Version)val2;
+                        }
+                        else if (val1.GetType() == typeof(Version) && val2.GetType() == typeof(string))
+                        {
+                            result = (Version)val1 != Version.Parse((string)val2);
+                        }
+                        else if (val1.GetType() == typeof(string) && val2.GetType() == typeof(Version))
+                        {
+                            result = Version.Parse((string)val1) != (Version)val2;
                         }
                         break;
                     default:

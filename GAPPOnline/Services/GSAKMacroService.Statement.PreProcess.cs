@@ -13,14 +13,14 @@ namespace GAPPOnline.Services
 {
     public partial class GSAKMacroService
     {
-        public class SystemVariableVersion : SystemVariable
+        public class StatementPreProcess : Statement
         {
-            public SystemVariableVersion(Macro owner)
-                :base(owner, "$_Version")
+            public StatementPreProcess(Line line, string statement): 
+                base(line, statement)
             {
-                Value = new Version(8,2,1,0);
-                Type = typeof(Version);
             }
+
+            public static string Syntax { get { return "PREPROCESS"; } }
         }
     }
 }

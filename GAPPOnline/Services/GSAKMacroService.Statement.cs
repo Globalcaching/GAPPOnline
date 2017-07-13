@@ -20,6 +20,8 @@ namespace GAPPOnline.Services
 
             public Statement(Line line, string statement)
             {
+                Line = line;
+                StatementText = statement;
             }
 
             public int PreExecute()

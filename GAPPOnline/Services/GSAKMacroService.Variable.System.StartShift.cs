@@ -13,7 +13,7 @@ namespace GAPPOnline.Services
 {
     public partial class GSAKMacroService
     {
-        public class SystemVariableStartShift : Variable
+        public class SystemVariableStartShift : SystemVariable
         {
             public SystemVariableStartShift(Macro owner)
                 :base(owner, "$_StartShift")
