@@ -29,6 +29,8 @@ namespace GAPPOnline.Services
             public volatile bool _stopped = false;
             public volatile bool _stopping = false;
 
+            public Action OnMessageOK = null;
+
             static Macro()
             {
                 Statements = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);

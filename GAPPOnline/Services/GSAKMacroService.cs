@@ -187,9 +187,9 @@ namespace GAPPOnline.Services
             {
                 _runningMacros.TryGetValue(connectionId, out currentMacro);
             }
-            if (currentMacro != null)
+            if (currentMacro != null && !currentMacro._stopping && !currentMacro._stopped)
             {
-                currentMacro.Stop();
+                currentMacro._stopping = true;
                 lock (_runningMacros)
                 {
                     _runningMacros.Remove(connectionId);
@@ -199,7 +199,15 @@ namespace GAPPOnline.Services
 
         public void MsgOKResult(string connectionId)
         {
-
+            Macro currentMacro;
+            lock (_runningMacros)
+            {
+                _runningMacros.TryGetValue(connectionId, out currentMacro);
+            }
+            if (currentMacro != null)
+            {
+                currentMacro.OnMessageOK?.Invoke();
+            }
         }
     }
 }

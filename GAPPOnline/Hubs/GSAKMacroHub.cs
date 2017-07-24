@@ -58,7 +58,7 @@ namespace GAPPOnline.Hubs
         }
 
         [HubMethodName("MsgOKResult")]
-        public void MsgOKResult(string userGuid)
+        public void MsgOKResult()
         {
             GSAKMacroService.Instance.MsgOKResult(this.Context.ConnectionId);
         }

@@ -98,7 +98,7 @@ namespace GAPPOnline.Services
 
             public List<CalculationStep> _calculationSteps;
 
-            public Calculation(Macro owner, Statement statement, string line)
+            public Calculation(Macro owner, Statement statement, string line, bool isEnum = false)
             {
                 Owner = owner;
                 Statement = statement;
@@ -127,7 +127,11 @@ namespace GAPPOnline.Services
                         step.Negative = true;
                     }
 
-                    if ("1234567890".Contains(line[0]))
+                    if (isEnum)
+                    {
+                        step.StringValue = line;
+                    }
+                    else if ("1234567890".Contains(line[0]))
                     {
                         //direct value
                         startOfRemainder = line.IndexOfAny("-+* \t/<>=".ToCharArray());
@@ -151,8 +155,7 @@ namespace GAPPOnline.Services
                             step.DirectValueDouble = dval;
                         }
                     }
-
-                    if (line[0] == '$')
+                    else if (line[0] == '$')
                     {
                         //a variable
                         startOfRemainder = line.IndexOfAny("-+* \t/<>=^".ToCharArray());
@@ -613,6 +616,15 @@ namespace GAPPOnline.Services
                         break;
                 }
                 return result;
+            }
+
+            public string VariableName
+            {
+                get { return _calculationSteps[0].VariableName; }
+            }
+            public string StringValue
+            {
+                get { return _calculationSteps[0].StringValue; }
             }
 
             public object Value
