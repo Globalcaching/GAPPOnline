@@ -151,7 +151,10 @@ namespace GAPPOnline.Services
                     if (currentMacro != null)
                     {
                         currentMacro.Stop();
-                        _runningMacros.Remove(connectionId);
+                        lock (_runningMacros)
+                        {
+                            _runningMacros.Remove(connectionId);
+                        }
                     }
                     lock (_runningMacros)
                     {
@@ -175,6 +178,23 @@ namespace GAPPOnline.Services
                     GSAKMacroHub.MacroIsFinished(conId);
                 }
             });
+        }
+
+        public void MacroHubDisconnected(string connectionId)
+        {
+            Macro currentMacro;
+            lock (_runningMacros)
+            {
+                _runningMacros.TryGetValue(connectionId, out currentMacro);
+            }
+            if (currentMacro != null)
+            {
+                currentMacro.Stop();
+                lock (_runningMacros)
+                {
+                    _runningMacros.Remove(connectionId);
+                }
+            }
         }
 
         public void MsgOKResult(string connectionId)

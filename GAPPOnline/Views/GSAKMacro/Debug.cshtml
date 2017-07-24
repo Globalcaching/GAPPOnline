@@ -1,0 +1,111 @@
+﻿@{
+    ViewData["Title"] = "GSAK Macro debugger";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div id="macroText">
+</div>
+
+<script>
+    var macroHub;
+    var currentBreakAtLine = -1;
+    var currentBreakPoints = [];
+
+    function runMacro() {
+        macroHub.server.DebugRun();
+    }
+
+    function stepMacro() {
+        macroHub.server.DebugStep();
+    }
+
+    function stopMacro() {
+        macroHub.server.DebugStop();
+    }
+
+    function addBreakPoint(lineNumber) {
+        $("#abbutton_" + lineNumber).hide();
+        $("#rbbutton_" + lineNumber).show();
+        currentBreakPoints.push(lineNumber);
+        setBackgroundColorOfLine(lineNumber);
+        macroHub.server.DebugAddBreakPoint(lineNumber);
+    }
+
+    function removeBreakPoint(lineNumber) {
+        $("#rbbutton_" + lineNumber).hide();
+        $("#abbutton_" + lineNumber).show();
+        _.remove(currentBreakPoints, function (lineNr){
+            lineNr == lineNumber
+        });
+        setBackgroundColorOfLine(lineNumber);
+        macroHub.server.DebugRemoveBreakPoint(lineNumber);
+    }
+
+    function setBackgroundColorOfLine(lineNumber) {
+        if (lineNumber >= 0) {
+            if (currentBreakAtLine == lineNumber) {
+                $("#codeline_" + lineNumber).css('background-color', 'yellow');
+            }
+            else if (_.indexOf(currentBreakPoints, lineNumber) >= 0) {
+                $("#codeline_" + lineNumber).css('background-color', 'red');
+            }
+            else {
+                $("#codeline_" + lineNumber).css('background-color', '');
+            }
+        }
+    }
+
+    function SetCurrentBreakAtLine(lineNr) {
+        var prevBreakLine = currentBreakAtLine;
+        if (currentBreakAtLine >= 0) {
+            $("#stepbutton_" + currentBreakAtLine).hide();
+            $("#runbutton_" + currentBreakAtLine).hide();
+        }
+        if (lineNr >= 0) {
+            $("#stepbutton_" + lineNr).show();
+            $("#runbutton_" + lineNr).show();
+            $("#codeline_" + lineNr).get(0).scrollIntoView(true);
+            window.scrollBy(0, -100);
+        }
+        currentBreakAtLine = lineNr;
+        setBackgroundColorOfLine(prevBreakLine);
+        setBackgroundColorOfLine(lineNr);
+    }
+
+    $(function () {
+        macroHub = $.connection.GSAKMacroDebugHub;
+
+        macroHub.client.MacroIsStarted = function (filename, lines) {
+            var s = '<ol>';
+            for (var i = 0; i < lines.length; i++) {
+                s += '<li id="codeline_' + i + '" style="white-space: pre;font-family: monospace;">';
+                s += '<i id="abbutton_' + i + '" class="glyphicon glyphicon-pause" style="vertical-align:middle;cursor:pointer;" onclick="addBreakPoint(' + i + ')"></i>';
+                s += '<i id="rbbutton_' + i + '" class="glyphicon glyphicon-pause" style="vertical-align:middle;cursor:pointer;display:none;" onclick="removeBreakPoint(' + i + ')"></i>';
+                s += '<i id="runbutton_' + i + '" class="glyphicon glyphicon-play" style="vertical-align:middle;cursor:pointer;display:none;" onclick="runMacro(' + i + ')"></i>';
+                s += '<i id="stepbutton_' + i + '" class="glyphicon glyphicon-step-forward" style="vertical-align:middle;cursor:pointer;display:none;" onclick="stepMacro(' + i + ')"></i>';
+                s += htmlEncode(lines[i]);
+                s += '</li>';
+            }
+            s += '</ol>';
+            $('#macroText').html(s);
+        };
+
+        macroHub.client.MacroIsPaused = function (lineNumber) {
+            SetCurrentBreakAtLine(lineNumber);
+        };
+
+        macroHub.client.MacroIsFinished = function () {
+            $('#macroText').html('');
+        };
+
+        macroHub.client.DebuggerConnected = function () {
+            macroHub.server.AttachDebugScreen(SessionInfo.UserGuid);
+        };
+
+        SignalR.registerOnServer();
+        SignalR.registerOnClient(["GSAKMacro", "UserSessionInfo"], function () {
+        });
+    });
+
+</script>

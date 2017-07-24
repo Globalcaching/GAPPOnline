@@ -42,6 +42,7 @@ namespace GAPPOnline.Hubs
 
         public override Task OnDisconnected(bool stopCalled)
         {
+            GSAKMacroService.Instance.MacroHubDisconnected(this.Context.ConnectionId);
             return base.OnDisconnected(stopCalled);
         }
 

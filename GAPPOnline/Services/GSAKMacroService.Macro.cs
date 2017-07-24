@@ -130,6 +130,7 @@ namespace GAPPOnline.Services
                                 withinDataBlock = false;
                             }
                         }
+                        GSAKMacroService.Instance.DebuggerMacroStarted(this);
                         int index = 0;
                         while (index >= 0 && index < Lines.Count)
                         {
@@ -170,6 +171,10 @@ namespace GAPPOnline.Services
                     _stopped = true;
                     _stopping = false;
                     throw;
+                }
+                finally
+                {
+                    GSAKMacroService.Instance.DebuggerMacroFinished(this);
                 }
             }
 

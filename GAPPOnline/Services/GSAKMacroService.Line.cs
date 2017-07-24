@@ -56,13 +56,17 @@ namespace GAPPOnline.Services
                             if (Macro.Statements.TryGetValue(words[0], out t))
                             {
                                 var constructor = t.GetConstructor(new Type[] { typeof(Line), typeof(string) });
-                                Statement = (Statement)constructor.Invoke(new object[] { this, words.Length>1 ? words[1] : "" });
+                                Statement = (Statement)constructor.Invoke(new object[] { this, words.Length > 1 ? words[1] : "" });
                             }
                         }
                         if (Statement == null)
                         {
                             SyntaxError($"Unknown statement: {words[0]}");
                         }
+                    }
+                    else
+                    {
+                        Statement = new StatementEmpty(this, LineText);
                     }
                 }
                 return result;
@@ -75,6 +79,7 @@ namespace GAPPOnline.Services
 
             public int Execute()
             {
+                GSAKMacroService.Instance.DebuggerExecuteLine(this);
                 return Statement?.Execute() ?? (LineNumber + 1);
             }
 

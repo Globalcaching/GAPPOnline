@@ -20,6 +20,12 @@ namespace GAPPOnline.Controllers
             return View(GetSessionInfo());
         }
 
+        [Authorize]
+        public IActionResult Debug()
+        {
+            return View(GetSessionInfo());
+        }
+
         [HttpPost]
         [Authorize]
         public ActionResult GetGSAKMacros(int page, int pageSize, List<string> filterColumns, List<string> filterValues, string sortOn, bool? sortAsc)

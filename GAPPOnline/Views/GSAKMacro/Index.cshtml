@@ -7,6 +7,7 @@
 <div>
     <button type="button" class="btn btn-success" onclick="uploadGSAKMacro()"><i class="glyphicon glyphicon-plus"></i>&nbsp;@Html.T("Upload GSAK Macro")</button>
     <input id="fileupload" type="file" name="file" accept=".gsk">
+    <a href="@Url.Action("Debug", "GSAKMacro")" target="_blank">@Html.T("Open new debugger")</a>
 </div>
 
 <div id="gsakMacroList"></div>
