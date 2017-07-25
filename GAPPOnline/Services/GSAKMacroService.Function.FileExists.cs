@@ -20,24 +20,11 @@ namespace GAPPOnline.Services
             public FunctionFileExists(Line line, Statement statement, string function): 
                 base(line, statement, function)
             {
-                int pos = function.IndexOf('(');
-                if (pos >= 0)
+                if (Parameters.Count == 0)
                 {
-                    int pos2 = function.LastIndexOf(')',pos);
-                    if (pos2 < 0)
-                    {
-                        var fn = function.Substring(pos + 1, pos2 - pos - 1);
-                        calc = new Calculation(line.Macro, statement, fn);
-                    }
-                    else
-                    {
-                        Line.SyntaxError("Expected ')'");
-                    }
+                    Line.SyntaxError("Expected file name");
                 }
-                else
-                {
-                    Line.SyntaxError("Expected '('");
-                }
+                calc = new Calculation(line.Macro, statement, Parameters[0]);
             }
 
             public static string Syntax { get { return "FileExists"; } }

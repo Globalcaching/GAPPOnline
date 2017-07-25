@@ -15,13 +15,13 @@ namespace GAPPOnline.Services
     {
         public class StatementDeclare : Statement
         {
-            private Calculation _name = null;
-            private Calculation _type = null;
+            private string _name = null;
+            private string _type = null;
 
             public StatementDeclare(Line line, string statement): 
                 base(line, statement)
             {
-                var parameters = GetParameters(statement, enums: new string[] { "Type" });
+                var parameters = GetParameters(statement);
                 if (!parameters.TryGetValue("Var", out _name))
                 {
                     line.SyntaxError("Missing parameter Var");
@@ -37,10 +37,10 @@ namespace GAPPOnline.Services
             protected override int PreExecuteStatement()
             {
                 Variable v;
-                if (!Line.Macro.Variables.TryGetValue(_name.VariableName, out v))
+                if (!Line.Macro.Variables.TryGetValue(_name, out v))
                 {
-                    v = new Variable(Line.Macro, _name.VariableName);
-                    switch(_type.StringValue.ToLower())
+                    v = new Variable(Line.Macro, _name);
+                    switch(_type.ToLower())
                     {
                         case "string":
                             v.Type = typeof(string);
@@ -58,7 +58,7 @@ namespace GAPPOnline.Services
                 }
                 else
                 {
-                    Line.SyntaxError($"Variable {_name.Value} already exists");
+                    Line.SyntaxError($"Variable {_name} already exists");
                 }
                 Line.Macro.Variables.Add(v.Name, v);
                 return base.PreExecuteStatement();

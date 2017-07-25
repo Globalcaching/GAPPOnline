@@ -125,6 +125,7 @@ namespace GAPPOnline.Services
                     if (line[0] == '-')
                     {
                         step.Negative = true;
+                        line = line.Substring(1);
                     }
 
                     if (isEnum)
@@ -255,7 +256,7 @@ namespace GAPPOnline.Services
                         }
                         if ((startOfRemainder - startOfFuncArguments - 1) > 0)
                         {
-                            funcArguments = line.Substring(startOfFuncArguments, startOfRemainder - startOfFuncArguments - 1);
+                            funcArguments = line.Substring(startOfFuncArguments, startOfRemainder - startOfFuncArguments);
                         }
                         startOfRemainder++;
 

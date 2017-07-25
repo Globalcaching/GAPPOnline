@@ -50,9 +50,9 @@ namespace GAPPOnline.Services
             {
             }
 
-            public Dictionary<string, Calculation> GetParameters(string txt, string[] enums = null)
+            public Dictionary<string, string> GetParameters(string txt)
             {
-                var result = new Dictionary<string, Calculation>(StringComparer.OrdinalIgnoreCase);
+                var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                 var res = txt;
                 while (!string.IsNullOrEmpty(res))
                 {
@@ -71,7 +71,7 @@ namespace GAPPOnline.Services
                             pos++;
                         }
                         var parValue = res.Substring(parts[0].Length + 1, pos - parts[0].Length - 1).Trim();
-                        result.Add(parName, new Calculation(Line.Macro, this, parValue, isEnum: enums==null?true: ((from a in enums where string.Compare(a, parName, true) == 0 select a).Any())));
+                        result.Add(parName, parValue);
 
                         if (pos < res.Length)
                         {

@@ -15,7 +15,7 @@ namespace GAPPOnline.Services
     {
         public class StatementBeginData : Statement
         {
-            private Calculation _name = null;
+            private string _name = null;
 
             public StatementBeginData(Line line, string statement): 
                 base(line, statement)
@@ -32,9 +32,9 @@ namespace GAPPOnline.Services
             protected override int PreExecuteStatement()
             {
                 Variable v;
-                if (!Line.Macro.Variables.TryGetValue(_name.StringValue, out v))
+                if (!Line.Macro.Variables.TryGetValue(_name, out v))
                 {
-                    v = new Variable(Line.Macro, _name.StringValue);
+                    v = new Variable(Line.Macro, _name);
                     Line.Macro.Variables.Add(v.Name, v);
                 }
                 var value = new StringBuilder();
@@ -44,6 +44,7 @@ namespace GAPPOnline.Services
                     value.AppendLine(Line.Macro.Lines[index].LineText);
                     index++;
                 }
+                v.Value = value.ToString();
                 return index;
             }
 

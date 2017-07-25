@@ -23,11 +23,19 @@ namespace GAPPOnline.Services
                 base(line, statement)
             {
                 var parameters = GetParameters(statement);
-                if (!parameters.TryGetValue("msg", out _msg))
+                string s;
+                if (parameters.TryGetValue("msg", out s))
+                {
+                    _msg = new Calculation(Line.Macro, this, s);
+                }
+                else
                 {
                     line.SyntaxError("Missing parameter msg");
                 }
-                parameters.TryGetValue("msg", out _caption);
+                if (parameters.TryGetValue("msg", out s))
+                {
+                    _caption = new Calculation(Line.Macro, this, s);
+                }
             }
 
             public static string Syntax { get { return "MSGOK"; } }
