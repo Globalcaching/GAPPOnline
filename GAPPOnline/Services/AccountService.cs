@@ -1,7 +1,7 @@
 ﻿using GAPPOnline.Services.Database;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Authentication;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -115,7 +115,7 @@ namespace GAPPOnline.Services
                     var userIdentity = new ClaimsIdentity(claims, "Passport");
                     var userPrincipal = new ClaimsPrincipal(userIdentity);
 
-                    await httpContext.Authentication.SignInAsync("Cookie", userPrincipal,
+                    await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal,
                         new AuthenticationProperties
                         {
                             ExpiresUtc = DateTime.UtcNow.AddDays(20),
@@ -139,7 +139,7 @@ namespace GAPPOnline.Services
             if (string.IsNullOrEmpty(expTime))
             {
                 context.RejectPrincipal();
-                await context.HttpContext.Authentication.SignOutAsync("Cookie");
+                await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             }
             else if (DateTime.UtcNow > DateTime.Parse(expTime, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal).ToUniversalTime())
             {
@@ -151,7 +151,7 @@ namespace GAPPOnline.Services
 
         public async Task SignOut(HttpContext httpContext)
         {
-            await httpContext.Authentication.SignOutAsync("Cookie");
+            await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         }
     }
 }

@@ -40,8 +40,24 @@ namespace GAPPOnline
             services.AddHttpContextAccessor();
             services.AddAuthentication(options =>
             {
-                options.SignInScheme = "Cookie";
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            .AddCookie(options =>
+            {
+                    options.LoginPath = new PathString("/Account/SignIn");
+                    options.AccessDeniedPath = new PathString("/Account/SignIn");
+                    options.Events = new CookieAuthenticationEvents
+                    {
+                        // Set other options
+                        OnValidatePrincipal = AccountService.Instance.ValidateAsync
+                    };
             });
+            //services.AddAuthentication(options =>
+            //{
+            //    options.SignInScheme = "Cookie";
+            //});
 
             services.AddAuthorization();
 
@@ -87,20 +103,20 @@ namespace GAPPOnline
 
             app.UseStaticFiles();
             app.UseSession();
-
-            app.UseCookieAuthentication(new CookieAuthenticationOptions()
-            {
-                AuthenticationScheme = "Cookie",
-                LoginPath = new PathString("/Account/SignIn"),
-                AccessDeniedPath = new PathString("/Account/SignIn"),
-                AutomaticAuthenticate = true,
-                AutomaticChallenge = true,
-                Events = new CookieAuthenticationEvents
-                {
-                    // Set other options
-                    OnValidatePrincipal = AccountService.Instance.ValidateAsync
-                }
-            });
+            app.UseAuthentication();
+            //app.UseCookieAuthentication(new CookieAuthenticationOptions()
+            //{
+            //    AuthenticationScheme = "Cookie",
+            //    LoginPath = new PathString("/Account/SignIn"),
+            //    AccessDeniedPath = new PathString("/Account/SignIn"),
+            //    AutomaticAuthenticate = true,
+            //    AutomaticChallenge = true,
+            //    Events = new CookieAuthenticationEvents
+            //    {
+            //        // Set other options
+            //        OnValidatePrincipal = AccountService.Instance.ValidateAsync
+            //    }
+            //});
             app.UseStaticHttpContext();
             app.UseMvc(routes =>
             {
