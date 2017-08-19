@@ -30,6 +30,7 @@ namespace GAPPOnline.Services
             public volatile bool _stopping = false;
 
             public Action OnMessageOK = null;
+            public Action<string> OnShowForm = null;
 
             static Macro()
             {
@@ -209,7 +210,7 @@ namespace GAPPOnline.Services
                 {
                     foreach (var variable in Variables.Values)
                     {
-                        if (variable.Owner == this)
+                        if (variable?.Owner == this)
                         {
                             variable.Dispose();
                         }

@@ -209,5 +209,19 @@ namespace GAPPOnline.Services
                 currentMacro.OnMessageOK?.Invoke();
             }
         }
+
+        public void ShowFormResult(string connectionId, string values)
+        {
+            Macro currentMacro;
+            lock (_runningMacros)
+            {
+                _runningMacros.TryGetValue(connectionId, out currentMacro);
+            }
+            if (currentMacro != null)
+            {
+                currentMacro.OnShowForm?.Invoke(values);
+            }
+        }
+
     }
 }

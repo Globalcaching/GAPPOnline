@@ -16,6 +16,7 @@ namespace GAPPOnline.Services
         public class FunctionForm : Function
         {
             Calculation _formText = null;
+            private volatile bool _waitForResult = false;
 
             public FunctionForm(Line line, Statement statement, string function): 
                 base(line, statement, function)
@@ -36,7 +37,20 @@ namespace GAPPOnline.Services
                     string result = "";
 
                     var formtext = _formText.Value;
-                    //todo
+                    var macroForm = MacroForm.Parse(Line, formtext as string);
+
+                    _waitForResult = true;
+                    Line.Macro.OnShowForm = (values) =>
+                    {
+                        //set result and values
+                        _waitForResult = false;
+                    };
+                    GSAKMacroHub.ShowForm(Line.Macro.ConnectionId, macroForm);
+                    while (!Line.Macro._stopped && !Line.Macro._stopping && _waitForResult)
+                    {
+                        System.Threading.Thread.Sleep(100);
+                    }
+
                     return result;
                 }
             }

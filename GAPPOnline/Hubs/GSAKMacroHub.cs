@@ -63,6 +63,12 @@ namespace GAPPOnline.Hubs
             GSAKMacroService.Instance.MsgOKResult(this.Context.ConnectionId);
         }
 
+        [HubMethodName("ShowFormResult")]
+        public void ShowFormResult(string values)
+        {
+            GSAKMacroService.Instance.ShowFormResult(this.Context.ConnectionId, values);
+        }
+
         public static void MacroIsStarted(string connectionId)
         {
             HubContext.Clients.Client(connectionId).MacroIsRunning();
@@ -76,6 +82,11 @@ namespace GAPPOnline.Hubs
         public static void MsgOK(string connectionId, string msg, string caption)
         {
             HubContext.Clients.Client(connectionId).MsgOK(msg, caption);
+        }
+
+        public static void ShowForm(string connectionId, GSAKMacroService.MacroForm form)
+        {
+            HubContext.Clients.Client(connectionId).ShowForm(form);
         }
 
     }
